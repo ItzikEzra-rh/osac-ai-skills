@@ -32,6 +32,8 @@ test_default_project_root_links_in_repo() {
   resolved=$(cd -L "${REPO_ROOT}/.claude/skills" && pwd -P)
   [[ "$resolved" == "$expected" ]] || fail "default mode resolved to $resolved, expected $expected"
   [[ -r "${REPO_ROOT}/.claude/skills/create-pr/SKILL.md" ]] || fail "cannot read create-pr via default .claude/skills"
+  # Do not leave agent discovery dirs or optional workflow symlinks behind.
+  rm -rf "${REPO_ROOT}/.claude"
   pass "unset PROJECT_ROOT links under skills repo root"
 }
 
