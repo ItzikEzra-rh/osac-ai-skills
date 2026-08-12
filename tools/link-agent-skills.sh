@@ -60,13 +60,27 @@ Usage: $(basename "$0") [--claude] [--cursor] [--gemini] [--all] [--with-ai-work
 EOF
 }
 
+# Replace link_path with a symlink to target. Refuses to delete a real
+# file/directory (only removes an existing symlink or creates anew).
+safe_symlink() {
+  local link_path="$1"
+  local target="$2"
+
+  if [[ -L "${link_path}" ]]; then
+    rm -f "${link_path}"
+  elif [[ -e "${link_path}" ]]; then
+    echo "ERROR: ${link_path} exists and is not a symlink; refusing to replace" >&2
+    return 1
+  fi
+  ln -sfn "${target}" "${link_path}"
+}
+
 link_agent_skills() {
   local agent_dir="$1"
   local label="$2"
 
-  rm -rf "${agent_dir}/skills"
   mkdir -p "${agent_dir}"
-  ln -sfn ../skills "${agent_dir}/skills"
+  safe_symlink "${agent_dir}/skills" ../skills
   echo "  Linked ${agent_dir}/skills -> ../skills  (${label})"
 }
 
@@ -90,12 +104,12 @@ link_canonical_ai_workflows() {
 
   mkdir -p "${PROJECT_ROOT}/skills"
   if [[ -d "${ai_dir}/_shared" ]]; then
-    ln -sfn "${ai_dir}/_shared" "${PROJECT_ROOT}/skills/_shared"
+    safe_symlink "${PROJECT_ROOT}/skills/_shared" "${ai_dir}/_shared"
     echo "  Linked skills/_shared -> ${ai_dir}/_shared"
   fi
   for wf in "${AI_WORKFLOW_SKILLS[@]}"; do
     if [[ -d "${ai_dir}/${wf}" ]]; then
-      ln -sfn "${ai_dir}/${wf}" "${PROJECT_ROOT}/skills/${wf}"
+      safe_symlink "${PROJECT_ROOT}/skills/${wf}" "${ai_dir}/${wf}"
       echo "  Linked skills/${wf} -> ${ai_dir}/${wf}"
     fi
   done
