@@ -51,8 +51,13 @@ if ! CHANGED_PATHS=$(git diff --diff-filter=d --name-only "${BASE_REF}...HEAD" -
   exit 2
 fi
 
-mapfile -t CHANGED_FILES < <(
-  printf '%s\n' "$CHANGED_PATHS" | grep -iE '^skills/[^/]+/SKILL\.md$' || true
+# Bash 3.2-compatible (macOS /bin/bash); avoid mapfile (bash 4+).
+CHANGED_FILES=()
+while IFS= read -r line || [[ -n "${line}" ]]; do
+  [[ -z "${line}" ]] && continue
+  CHANGED_FILES+=("${line}")
+done < <(
+  printf '%s\n' "${CHANGED_PATHS}" | grep -iE '^skills/[^/]+/SKILL\.md$' || true
 )
 
 if [[ ${#CHANGED_FILES[@]} -eq 0 ]]; then
