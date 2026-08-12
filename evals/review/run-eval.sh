@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Run planning-phase review evals via agent-eval-harness from workspace root.
+# Run planning-phase review evals via agent-eval-harness from the osac-ai-skills root.
 #
 # Usage:
 #   evals/review/run-eval.sh [options]
@@ -13,6 +13,9 @@
 # Environment:
 #   AGENT_EVAL_HARNESS      Harness checkout (default: evals/review/.harness/agent-eval-harness)
 #   RUN_ID                  Run identifier (default: UTC timestamp)
+#
+# Full execute runs need a sibling enhancement-proposals/ (consumer bootstrap).
+# --skip-execute --skip-score smoke does not.
 #
 # First-time setup: evals/review/setup-harness.sh
 set -euo pipefail
@@ -73,8 +76,13 @@ esac
 
 # --- Prerequisites -----------------------------------------------------------
 
-[[ -d "${WORKSPACE_ROOT}/enhancement-proposals" ]] || die \
-  "run from bootstrapped workspace root (missing enhancement-proposals/). Run ./bootstrap.sh first."
+if [[ ! -d "${WORKSPACE_ROOT}/enhancement-proposals" ]]; then
+  if [[ "${SKIP_EXECUTE}" -eq 1 && "${SKIP_SCORE}" -eq 1 ]]; then
+    echo "WARNING: enhancement-proposals/ missing; continuing because --skip-execute --skip-score" >&2
+  else
+    die "missing enhancement-proposals/ sibling (consumer bootstrap). Smoke-only: add --skip-execute --skip-score."
+  fi
+fi
 
 require_skill() {
   local skill="$1"
