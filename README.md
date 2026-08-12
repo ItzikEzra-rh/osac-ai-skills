@@ -14,6 +14,26 @@ until cutover also `osac-workspace/bootstrap.sh`. `flightctl/ai-workflows`
 remains a separate vendored dependency of those consumers; it is not hosted
 here.
 
+## Consumer fan-out
+
+From a standalone clone of this repo:
+
+```bash
+tools/link-agent-skills.sh --all
+# optional: also wire flightctl/ai-workflows under skills/
+tools/link-agent-skills.sh --all --with-ai-workflows
+```
+
+From a consumer workspace that vendors this repo (e.g. as `.osac-ai-skills/`),
+set `PROJECT_ROOT` to the consumer root so agent symlinks land there. Native
+skills must already be present under `$PROJECT_ROOT/skills/` (typically as
+symlinks into the vendored `skills/` tree):
+
+```bash
+PROJECT_ROOT=/path/to/consumer \
+  /path/to/.osac-ai-skills/tools/link-agent-skills.sh --all --with-ai-workflows
+```
+
 ## Background
 
 See ADR 0001 in `osac-project/osac-workspace`:
