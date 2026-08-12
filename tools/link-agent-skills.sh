@@ -14,7 +14,14 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(realpath "$(dirname "${BASH_SOURCE[0]}")")"
-PROJECT_ROOT="$(realpath "${SCRIPT_DIR}/..")"
+# Consumers (osac-workspace, osac) may set PROJECT_ROOT to their own tree so
+# agent links and --with-ai-workflows materialize there instead of inside this
+# skills repo. Unset → standalone clone behavior (repo root).
+if [[ -n "${PROJECT_ROOT:-}" ]]; then
+  PROJECT_ROOT="$(realpath "${PROJECT_ROOT}")"
+else
+  PROJECT_ROOT="$(realpath "${SCRIPT_DIR}/..")"
+fi
 
 OSAC_SKILLS=(
   browser-demo-recording
