@@ -43,17 +43,20 @@ AI_WORKFLOW_SKILLS=(bugfix design e2e implement prd)
 LINK_CLAUDE=false
 LINK_CURSOR=false
 LINK_GEMINI=false
+LINK_AI_WORKFLOWS=false
 VERIFY_ONLY=false
 
 usage() {
   cat <<EOF
-Usage: $(basename "$0") [--claude] [--cursor] [--gemini] [--all] [--verify]
+Usage: $(basename "$0") [--claude] [--cursor] [--gemini] [--all] [--with-ai-workflows] [--verify]
 
-  --claude   Link .claude/skills -> ../skills
-  --cursor   Link .cursor/skills -> ../skills
-  --gemini   Link .gemini/skills -> ../skills
-  --all      Link all agent directories (default when no link flag is given)
-  --verify   Verify symlinks and OSAC skill files; exit non-zero on failure
+  --claude              Link .claude/skills -> ../skills
+  --cursor              Link .cursor/skills -> ../skills
+  --gemini              Link .gemini/skills -> ../skills
+  --all                 Link all agent directories (default when no link flag is given)
+  --with-ai-workflows   Also symlink flightctl/ai-workflows under skills/ (opt-in;
+                        consumers that bootstrap ai-workflows pass this)
+  --verify              Verify symlinks and OSAC skill files; exit non-zero on failure
 EOF
 }
 
@@ -135,15 +138,20 @@ verify_osac_skills() {
 }
 
 verify_ai_workflow_skills() {
-  local ai_dir missing=0
-  ai_dir="$(resolve_ai_workflows_dir || true)"
-  if [[ -z "${ai_dir}" ]]; then
-    echo "WARN: ai-workflows not found; skipping ai-workflows skill verification" >&2
+  local missing=0 skill any=0
+  # Only verify when workflow symlinks were actually wired under skills/.
+  for skill in "${AI_WORKFLOW_SKILLS[@]}" _shared; do
+    if [[ -e "${PROJECT_ROOT}/skills/${skill}" ]]; then
+      any=1
+      break
+    fi
+  done
+  if [[ "${any}" -eq 0 ]]; then
     return 0
   fi
   for skill in "${AI_WORKFLOW_SKILLS[@]}"; do
     if [[ ! -r "${PROJECT_ROOT}/skills/${skill}/SKILL.md" ]]; then
-      echo "ERROR: missing skills/${skill}/SKILL.md (run ai-workflows install first)" >&2
+      echo "ERROR: missing skills/${skill}/SKILL.md (pass --with-ai-workflows after bootstrapping ai-workflows)" >&2
       missing=1
     fi
   done
@@ -196,6 +204,7 @@ while [[ $# -gt 0 ]]; do
       LINK_CURSOR=true
       LINK_GEMINI=true
       ;;
+    --with-ai-workflows) LINK_AI_WORKFLOWS=true ;;
     --verify) VERIFY_ONLY=true ;;
     -h|--help)
       usage
@@ -221,7 +230,9 @@ if [[ "${VERIFY_ONLY}" == true ]]; then
 fi
 
 echo "Linking agent skill directories to skills/..."
-link_canonical_ai_workflows
+if [[ "${LINK_AI_WORKFLOWS}" == true ]]; then
+  link_canonical_ai_workflows
+fi
 if [[ "${LINK_CLAUDE}" == true ]]; then
   link_agent_skills "${PROJECT_ROOT}/.claude" "Claude"
 fi
