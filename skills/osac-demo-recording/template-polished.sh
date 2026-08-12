@@ -118,16 +118,20 @@ run_demo() {
   fi
 }
 
-# Main
-case "${1:-}" in
-  --dry-run)
-    run_demo
-    ;;
-  --cleanup)
-    CLEANUP=true
-    asciinema rec --title "OSAC API Demo" -c "bash -c 'source $0 && run_demo'" "${CAST_FILE}"
-    ;;
-  *)
-    asciinema rec --title "OSAC API Demo" -c "bash -c 'source $0 && run_demo'" "${CAST_FILE}"
-    ;;
-esac
+# Main — only when executed directly. The asciinema child does
+# `source $0 && run_demo`; without this guard, sourcing re-enters the
+# default branch and starts another recording (infinite recursion).
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+  case "${1:-}" in
+    --dry-run)
+      run_demo
+      ;;
+    --cleanup)
+      CLEANUP=true
+      asciinema rec --title "OSAC API Demo" -c "bash -c 'source $0 && run_demo'" "${CAST_FILE}"
+      ;;
+    *)
+      asciinema rec --title "OSAC API Demo" -c "bash -c 'source $0 && run_demo'" "${CAST_FILE}"
+      ;;
+  esac
+fi
