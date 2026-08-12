@@ -39,3 +39,11 @@ __pycache__/
 evals/review/.harness/
 evals/review/results/
 evals/review/artifacts/
+
+# Optional flightctl/ai-workflows skill symlinks under skills/ (consumer wiring)
+skills/bugfix
+skills/e2e
+skills/implement
+skills/prd
+skills/design
+skills/_shared
