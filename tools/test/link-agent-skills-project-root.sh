@@ -16,25 +16,43 @@ pass() { echo "PASS: $*"; }
 TMPDIR_ROOT=$(mktemp -d)
 trap 'rm -rf "$TMPDIR_ROOT"' EXIT
 
+# Build an isolated standalone checkout under TMPDIR_ROOT so default-mode
+# linking never touches the developer's real .claude/.
+make_standalone_fixture() {
+  local isolated skill_dir name
+  isolated=$(mktemp -d "${TMPDIR_ROOT}/standalone.XXXXXX")
+  mkdir -p "${isolated}/tools" "${isolated}/skills"
+  cp "$SCRIPT" "${isolated}/tools/link-agent-skills.sh"
+  chmod +x "${isolated}/tools/link-agent-skills.sh"
+  for skill_dir in "${REPO_ROOT}/skills"/*/; do
+    [[ -d "$skill_dir" ]] || continue
+    name=$(basename "$skill_dir")
+    ln -sfn "${skill_dir%/}" "${isolated}/skills/${name}"
+  done
+  printf '%s' "$isolated"
+}
+
 # --- Contracts ---
 
 test_default_project_root_links_in_repo() {
-  # Unset PROJECT_ROOT → agent links land under the skills repo root.
+  # Unset PROJECT_ROOT → agent links land under the skills repo root of an
+  # isolated copy (not the developer checkout).
+  local isolated
+  isolated=$(make_standalone_fixture)
+
   unset PROJECT_ROOT || true
   (
-    cd "$REPO_ROOT"
-    "$SCRIPT" --claude
+    cd "$isolated"
+    ./tools/link-agent-skills.sh --claude
   ) >/dev/null
 
-  [[ -L "${REPO_ROOT}/.claude/skills" ]] || fail ".claude/skills is not a symlink"
+  [[ -L "${isolated}/.claude/skills" ]] || fail ".claude/skills is not a symlink in isolated fixture"
   local expected resolved
-  expected=$(cd "${REPO_ROOT}/skills" && pwd -P)
-  resolved=$(cd -L "${REPO_ROOT}/.claude/skills" && pwd -P)
+  expected=$(cd "${isolated}/skills" && pwd -P)
+  resolved=$(cd -L "${isolated}/.claude/skills" && pwd -P)
   [[ "$resolved" == "$expected" ]] || fail "default mode resolved to $resolved, expected $expected"
-  [[ -r "${REPO_ROOT}/.claude/skills/create-pr/SKILL.md" ]] || fail "cannot read create-pr via default .claude/skills"
-  # Do not leave agent discovery dirs or optional workflow symlinks behind.
-  rm -rf "${REPO_ROOT}/.claude"
-  pass "unset PROJECT_ROOT links under skills repo root"
+  [[ -r "${isolated}/.claude/skills/create-pr/SKILL.md" ]] || fail "cannot read create-pr via isolated .claude/skills"
+  pass "unset PROJECT_ROOT links under skills repo root (isolated fixture)"
 }
 
 test_project_root_override_links_consumer() {
@@ -64,6 +82,11 @@ test_project_root_override_links_consumer() {
   echo '# stub' >"${consumer}/.ai-workflows/implement/SKILL.md"
   echo '# stub' >"${consumer}/.ai-workflows/prd/SKILL.md"
 
+  # Capture pre-state: consumer mode must not create agent links in the
+  # skills-repo checkout when none existed before this invocation.
+  local had_repo_claude=0
+  [[ -e "${REPO_ROOT}/.claude/skills" ]] && had_repo_claude=1
+
   PROJECT_ROOT="$consumer" "$SCRIPT" --claude --with-ai-workflows >/dev/null
 
   [[ -L "${consumer}/.claude/skills" ]] || fail "consumer .claude/skills is not a symlink"
@@ -76,9 +99,11 @@ test_project_root_override_links_consumer() {
   [[ -L "${consumer}/skills/bugfix" ]] || fail "expected skills/bugfix symlink under consumer"
   [[ -r "${consumer}/skills/bugfix/SKILL.md" ]] || fail "cannot read bugfix via consumer skills/"
 
-  # Must not have created agent links inside the skills repo for this invocation.
-  # (Default-mode test may have created REPO_ROOT/.claude — that is fine and gitignored.)
-  pass "PROJECT_ROOT override links under consumer tree"
+  if [[ "${had_repo_claude}" -eq 0 ]]; then
+    [[ ! -e "${REPO_ROOT}/.claude/skills" ]] \
+      || fail "consumer mode created ${REPO_ROOT}/.claude/skills (expected isolation)"
+  fi
+  pass "PROJECT_ROOT override links under consumer tree only"
 }
 
 test_default_project_root_links_in_repo
