@@ -2,7 +2,7 @@
 name: osac-feature
 description: Create Feature issues in the OSAC Jira project. Use when the user wants to create a Feature, enhancement, or new capability request for OSAC.
 metadata:
-  version: "0.2.0"
+  version: "0.2.2"
 ---
 
 # OSAC Feature Creation
@@ -283,5 +283,5 @@ See [feature-body-template.md](references/feature-body-template.md) for the Jira
   `OSAC-UI` regardless of the Feature's team
 - Existing bootstrap epics predating this convention are not backfilled — only
   epics created going forward get the `bootstrap` label and copied `fixVersion`
-- Temp files: source `tools/jira-safe-create.sh`; call `add_temp` in the parent shell after each `new_temp` — see `jira-task-management` Safe create pattern
+- Temp files: source the shared script per [bash-patterns.md](references/bash-patterns.md)'s vendor-lookup snippet; call `add_temp` in the parent shell after each `new_temp` — see `jira-task-management` Safe create pattern
 - jira-cli handles markdown-to-ADF conversion automatically

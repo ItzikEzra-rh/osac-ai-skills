@@ -2,7 +2,7 @@
 name: jira-task-management
 description: Manage Jira issues on Red Hat Jira (redhat.atlassian.net) using jira-cli. Use this skill whenever the user mentions Jira tickets, issues, bugs, tasks, epics, sprints, or wants to create/update/search work items. Also use when the user references issue keys like OSAC-*, NVIDIA-*, RHEL-*, asks about task status, or wants to track work.
 metadata:
-  version: "0.1.0"
+  version: "0.1.1"
 ---
 
 # Jira Task Management
@@ -46,10 +46,12 @@ jira issue list -q 'summary ~ "exact or distinctive summary phrase"' --plain
 
 **Safe create pattern** — use per-run temp files with cleanup, run create directly (not inside `$(...)`), capture stderr (never `2>/dev/null`), allow up to 3 minutes:
 
-```bash
-# Load shared temp helpers (from osac-workspace root)
-source "$(git rev-parse --show-toplevel)/tools/jira-safe-create.sh"
+**Source the shared script first** — see
+[resolve-jira-safe-create.md](references/resolve-jira-safe-create.md) for
+the vendor-lookup snippet. Defines `new_temp`, `add_temp`, `jira_login()`,
+and `jira_token()`.
 
+```bash
 # Single create — write body, capture stdout and stderr separately
 # Register each path in the parent shell (add_temp inside $(...) runs in a subshell)
 BODY=$(new_temp osac-jira-body)

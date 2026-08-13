@@ -16,13 +16,18 @@ to the `osac-installer/` subdirectory of that clone:
 ```bash
 git clone https://github.com/osac-project/osac.git
 cd osac
-WORKSPACE_ROOT=$(cd .. && git rev-parse --show-toplevel 2>/dev/null || echo "")
-if [[ -n "$WORKSPACE_ROOT" ]] && [[ -x "${WORKSPACE_ROOT}/tools/resolve-remotes.sh" ]]; then
-  _resolve_out=$("${WORKSPACE_ROOT}/tools/resolve-remotes.sh" .) || { echo "Failed to resolve remotes"; exit 1; }
-  eval "$_resolve_out"
-else
-  UPSTREAM_REMOTE=origin
+OSAC_AI_SKILLS_DIR=""
+for _cand in "${HOME}/.osac-ai-skills" "$(pwd)/.osac-ai-skills"; do
+  if [[ -x "${_cand}/tools/resolve-remotes.sh" ]]; then
+    OSAC_AI_SKILLS_DIR="${_cand}"; break
+  fi
+done
+if [[ -z "$OSAC_AI_SKILLS_DIR" ]]; then
+  echo "resolve-remotes.sh not found in a vendored osac-ai-skills checkout. Run tools/bootstrap.sh, then retry." >&2
+  exit 1
 fi
+_resolve_out=$("${OSAC_AI_SKILLS_DIR}/tools/resolve-remotes.sh" .) || { echo "Failed to resolve remotes"; exit 1; }
+eval "$_resolve_out"
 git fetch "$UPSTREAM_REMOTE" main && git rebase "$UPSTREAM_REMOTE/main"
 cd osac-installer
 ```

@@ -129,16 +129,35 @@ Record the release reason -- include it in the Step 9 release summary.
 
 Discover and validate repos **only for the selected components** from Step 0b.
 
+`resolve-remotes.sh` lives in this skill's own repo (`osac-ai-skills`), not
+`$WORKSPACE_ROOT` — resolve the vendored checkout once, before the loop,
+since it doesn't vary per selected component:
+
 ```bash
 WORKSPACE_ROOT=$(git rev-parse --show-toplevel)
 PARENT_DIR=$(dirname "$WORKSPACE_ROOT")
+
+OSAC_AI_SKILLS_DIR=""
+for _cand in "${HOME}/.osac-ai-skills" "${WORKSPACE_ROOT}/.osac-ai-skills"; do
+  if [[ -x "${_cand}/tools/resolve-remotes.sh" ]]; then
+    OSAC_AI_SKILLS_DIR="${_cand}"; break
+  fi
+done
+if [[ -z "$OSAC_AI_SKILLS_DIR" ]]; then
+  echo "ERROR: resolve-remotes.sh not found in a vendored osac-ai-skills checkout (~/.osac-ai-skills or ${WORKSPACE_ROOT}/.osac-ai-skills). Run tools/bootstrap.sh, then retry." >&2
+  # Stop here rather than guessing 'origin' — OSAC_REMOTE below feeds
+  # git push/tag for an official release; an unverified guess (origin
+  # isn't guaranteed to be osac-project, not a personal fork) is worse
+  # than refusing to proceed.
+  exit 1
+fi
 
 for repo in <selected repos>; do
   path="${PARENT_DIR}/${repo}"
   if [ -d "$path" ]; then
     UPSTREAM_REMOTE=""
     PUSH_REMOTE=""
-    _resolve_out=$("${WORKSPACE_ROOT}/tools/resolve-remotes.sh" "$path") || {
+    _resolve_out=$("${OSAC_AI_SKILLS_DIR}/tools/resolve-remotes.sh" "$path") || {
       echo "ERROR: ${repo} has no remote pointing to osac-project/${repo}."
       echo "  Add one (any name works): git -C \"$path\" remote add <name> https://github.com/osac-project/${repo}.git"
       # Stop or prompt user

@@ -2,7 +2,7 @@
 name: create-pr
 description: Create a PR on an OSAC component repo (including the osac mono-repo, which may need per-component validation for multiple touched components in one pass) using the fork-based workflow. Runs repo-specific validation (build, test, lint), pushes to the developer's push remote, and opens a PR against the upstream repo with proper title format. Use when the user says 'create PR', 'open PR', 'submit for review', 'push and create PR', or when finishing a feature branch.
 metadata:
-  version: "0.1.1"
+  version: "0.1.3"
 ---
 
 # Create PR
@@ -16,7 +16,7 @@ Create a PR on an OSAC component repo using the fork-based workflow.
 - `gh` CLI authenticated (`gh auth status`)
 - A push remote configured (developer's personal repo — the push target)
 - Commits on a feature branch, not `main`
-- `tools/resolve-remotes.sh` available (run from `osac-workspace`)
+- `resolve-remotes.sh` available via a vendored `osac-ai-skills` checkout (`~/.osac-ai-skills` or `$REPO_DIR/.osac-ai-skills` — run `tools/bootstrap.sh` if neither exists)
 
 ## Step 1: Detect Context
 
@@ -27,18 +27,10 @@ REPO_DIR=$(git rev-parse --show-toplevel)
 BRANCH=$(git branch --show-current)
 ```
 
-**Resolve remote names** before deriving the repo name or running gate checks:
-
-```bash
-WORKSPACE_ROOT=$(cd "$REPO_DIR/.." && git rev-parse --show-toplevel 2>/dev/null || echo "$REPO_DIR/..")
-_resolve_out=$("${WORKSPACE_ROOT}/tools/resolve-remotes.sh" "$REPO_DIR") || {
-  echo "Failed to resolve remotes. Run tools/resolve-remotes.sh --print to diagnose."
-  exit 1
-}
-eval "$_resolve_out"
-```
-
-This sets `$UPSTREAM_REMOTE` (the osac-project remote) and `$PUSH_REMOTE` (developer's push target). Run `tools/resolve-remotes.sh --print` to see current detection.
+**Resolve remote names** before deriving the repo name or running gate
+checks — see [resolve-remotes.md](references/resolve-remotes.md) for the
+vendor-lookup snippet. Sets `$UPSTREAM_REMOTE`, `$PUSH_REMOTE`, and
+`$OSAC_AI_SKILLS_DIR`.
 
 ```bash
 # Derive from the resolved upstream remote, not $(basename "$REPO_DIR") -- a
@@ -57,7 +49,7 @@ REPO_NAME="${REPO_NAME%.git}"
 | Check | Command | Fail action |
 |-------|---------|-------------|
 | Not on main | `[[ "$BRANCH" != "main" ]]` | Stop: "You're on main. Create a feature branch first." |
-| Push remote exists | `git remote get-url "$PUSH_REMOTE"` | Stop: "No push remote detected. Run `tools/resolve-remotes.sh --print` to diagnose. You may need to add one: `git remote add fork git@github.com:<user>/\<repo>.git`" |
+| Push remote exists | `git remote get-url "$PUSH_REMOTE"` | Stop: "No push remote detected." — see [No push remote detected](#no-push-remote-detected) below |
 | Has commits ahead of main | `git log main..HEAD --oneline` | Stop: "No commits ahead of main. Nothing to submit." |
 | Clean working tree | `git status --porcelain` | Stop: "Uncommitted changes detected. Commit or stash before proceeding." |
 
@@ -476,7 +468,7 @@ related PRs in the description (e.g., 'Depends on osac-project/osac#123')."
 
 ### No push remote detected
 
-Run `tools/resolve-remotes.sh --print` to see which remotes were detected. If no push remote was found, add one:
+Run `"${OSAC_AI_SKILLS_DIR}/tools/resolve-remotes.sh" --print` to see detected remotes (Step 1 already exits before this point if no vendored checkout was found, so `$OSAC_AI_SKILLS_DIR` is always set here). If no push remote was found, add one:
 
 ```bash
 git remote add <name> git@github.com:<your-username>/<repo>.git
@@ -515,7 +507,7 @@ If a PR already exists, show its URL instead of creating a duplicate.
 - Amend an existing commit — always create a new one
 
 **Always:**
-- Resolve remotes with `tools/resolve-remotes.sh` before pushing
+- Resolve remotes with `resolve-remotes.sh` before pushing
 - Run repo-specific validation first
 - Run the pre-flight review gate before pushing
 - Push to `$PUSH_REMOTE`

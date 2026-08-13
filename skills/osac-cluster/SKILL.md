@@ -3,7 +3,7 @@ name: osac-cluster
 description: Boot, manage, or troubleshoot OSAC development clusters using cluster-tool.
 when_to_use: Use when the user needs an OSAC development cluster, wants to test locally, says "spawn a cluster", "boot a cluster", "I need a dev environment", asks about cluster-tool, or wants to run E2E tests on a real cluster. Also use when connecting to baremetal servers, pulling flavors, running refresh, or troubleshooting cluster issues.
 metadata:
-  version: "0.1.0"
+  version: "0.1.2"
 ---
 
 # OSAC Cluster — From Zero to Running Cluster
@@ -360,8 +360,17 @@ cluster-tool boot --flavor vmaas-4-22 --name dev --pull-secret values/vmaas-ci/p
 export KUBECONFIG=~/.kube/dev.kubeconfig
 
 cd <path-to-osac-installer>  # osac-installer/ subdir of your osac mono-repo clone
-WORKSPACE_ROOT=$(cd .. && git rev-parse --show-toplevel 2>/dev/null || echo "$(pwd)")
-_resolve_out=$("${WORKSPACE_ROOT}/tools/resolve-remotes.sh" .) || { echo "Failed to resolve remotes"; exit 1; }
+OSAC_AI_SKILLS_DIR=""
+for _cand in "${HOME}/.osac-ai-skills" "$(git rev-parse --show-toplevel)/.osac-ai-skills"; do
+  if [[ -x "${_cand}/tools/resolve-remotes.sh" ]]; then
+    OSAC_AI_SKILLS_DIR="${_cand}"; break
+  fi
+done
+if [[ -z "$OSAC_AI_SKILLS_DIR" ]]; then
+  echo "resolve-remotes.sh not found in a vendored osac-ai-skills checkout. Run tools/bootstrap.sh, then retry." >&2
+  exit 1
+fi
+_resolve_out=$("${OSAC_AI_SKILLS_DIR}/tools/resolve-remotes.sh" .) || { echo "Failed to resolve remotes"; exit 1; }
 eval "$_resolve_out"
 git fetch "$UPSTREAM_REMOTE" main && git rebase "$UPSTREAM_REMOTE/main"
 
@@ -431,8 +440,17 @@ Make sure `osac` (which contains `osac-installer/`) is up to date with the upstr
 
 ```bash
 cd <path-to-osac-installer>  # osac-installer/ subdir of your osac mono-repo clone
-WORKSPACE_ROOT=$(cd .. && git rev-parse --show-toplevel 2>/dev/null || echo "$(pwd)")
-_resolve_out=$("${WORKSPACE_ROOT}/tools/resolve-remotes.sh" .) || { echo "Failed to resolve remotes"; exit 1; }
+OSAC_AI_SKILLS_DIR=""
+for _cand in "${HOME}/.osac-ai-skills" "$(git rev-parse --show-toplevel)/.osac-ai-skills"; do
+  if [[ -x "${_cand}/tools/resolve-remotes.sh" ]]; then
+    OSAC_AI_SKILLS_DIR="${_cand}"; break
+  fi
+done
+if [[ -z "$OSAC_AI_SKILLS_DIR" ]]; then
+  echo "resolve-remotes.sh not found in a vendored osac-ai-skills checkout. Run tools/bootstrap.sh, then retry." >&2
+  exit 1
+fi
+_resolve_out=$("${OSAC_AI_SKILLS_DIR}/tools/resolve-remotes.sh" .) || { echo "Failed to resolve remotes"; exit 1; }
 eval "$_resolve_out"
 git fetch "$UPSTREAM_REMOTE" main
 git rebase "$UPSTREAM_REMOTE/main"

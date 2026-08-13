@@ -2,16 +2,16 @@
 
 **Read this file before any `jira issue create` or `jira issue edit`.**
 
-Define once before any Jira create: source `tools/jira-safe-create.sh` (see
-`jira-task-management` Safe create pattern), then define skill-specific helpers
-below. Reference these from each create step instead of duplicating key
-validation or `--plain` parsing.
+Before any Jira create, follow the vendor-lookup snippet below, then define
+skill-specific helpers below that. Reference these from each create step
+instead of duplicating key validation or `--plain` parsing.
 
 ## Source safe-create script
 
-```bash
-source "$(git rev-parse --show-toplevel)/tools/jira-safe-create.sh"
-```
+See [resolve-jira-safe-create.md](../../jira-task-management/references/resolve-jira-safe-create.md)
+for the vendor-lookup snippet — it resolves and sources the vendored helper
+before any skill-specific helpers run. Defines `new_temp`, `add_temp`,
+`jira_login()`, and `jira_token()`.
 
 ## Key validation and JQL helpers
 

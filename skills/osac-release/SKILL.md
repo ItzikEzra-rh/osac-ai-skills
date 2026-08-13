@@ -23,7 +23,7 @@ allowed-tools:
   - Grep
   - AskUserQuestion
 metadata:
-  version: "0.1.0"
+  version: "0.1.1"
 ---
 
 # /osac-release -- OSAC Helm Chart Release Wizard
