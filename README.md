@@ -36,6 +36,32 @@ PROJECT_ROOT=/path/to/consumer \
   /path/to/.osac-ai-skills/tools/link-agent-skills.sh --all --with-ai-workflows
 ```
 
+### Shared rules, agents, and design context
+
+Beyond skill symlinks, the fan-out also materializes canonical content that
+lives directly at its real consumer-side path in this repo — `.claude/rules/`,
+`.claude/agents/`, and `.design/context/` — as per-file symlinks into
+`$PROJECT_ROOT`'s matching path, alongside any consumer-local files already
+there (e.g. a workspace-only rule with no reason to be shared):
+
+- `.claude/rules/*.md` and `.claude/agents/*.md` — materialized only when
+  `--claude` (or `--all`) is passed; no Cursor/Gemini equivalent format exists
+  to fan the same raw content out to.
+- `.design/context/*.md` — materialized unconditionally. Agent-agnostic: read
+  directly by skill instructions (`design-review`, `prd-review`,
+  `flightctl/ai-workflows`'s `prd`/`design`), not by any one coding agent's
+  auto-attach mechanism.
+
+`reference/*.md` (codebase-analysis snapshots like `ARCHITECTURE.md`,
+`CONVENTIONS.md`) is intentionally **not** centralized here — it documents a
+specific downstream codebase's current internals, not portable skill
+guidance, and belongs wherever that codebase lives. Placement is deferred to
+[OSAC-4008](https://redhat.atlassian.net/browse/OSAC-4008).
+
+Content in these directories must stay agnostic to where a consumer clones
+sibling repos — use component-relative paths or full GitHub URLs, never a
+path that assumes a specific repo nesting depth.
+
 ## Shared helper scripts
 
 Some skills need small bash helpers beyond what's inlined in their `SKILL.md`.
