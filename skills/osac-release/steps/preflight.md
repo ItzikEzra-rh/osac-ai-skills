@@ -145,13 +145,14 @@ for _cand in "${HOME}/.osac-ai-skills" "${WORKSPACE_ROOT}/.osac-ai-skills"; do
 done
 if [[ -z "$OSAC_AI_SKILLS_DIR" ]]; then
   echo "ERROR: resolve-remotes.sh not found in a vendored osac-ai-skills checkout (~/.osac-ai-skills or ${WORKSPACE_ROOT}/.osac-ai-skills). Run tools/bootstrap.sh, then retry." >&2
-  # Stop here rather than guessing 'origin' — OSAC_REMOTE below feeds
+  # Stop here rather than guessing 'origin' — OSAC_REMOTES below feeds
   # git push/tag for an official release; an unverified guess (origin
   # isn't guaranteed to be osac-project, not a personal fork) is worse
   # than refusing to proceed.
   exit 1
 fi
 
+declare -A OSAC_REMOTES
 for repo in <selected repos>; do
   path="${PARENT_DIR}/${repo}"
   if [ -d "$path" ]; then
@@ -164,14 +165,39 @@ for repo in <selected repos>; do
       continue
     }
     eval "$_resolve_out"
-    OSAC_REMOTE="$UPSTREAM_REMOTE"
+    OSAC_REMOTES[$repo]="$UPSTREAM_REMOTE"
   fi
 done
+
+# UI label is "osac (umbrella)" but Step 8 keys on osac-installer. Whenever
+# the umbrella is selected, resolve that repo into OSAC_REMOTES even if the
+# selection list used the UI label rather than the checkout directory name.
+if <umbrella selected> && [[ -z "${OSAC_REMOTES[osac-installer]+x}" ]]; then
+  repo=osac-installer
+  path="${PARENT_DIR}/${repo}"
+  if [ -d "$path" ]; then
+    UPSTREAM_REMOTE=""
+    PUSH_REMOTE=""
+    _resolve_out=$("${OSAC_AI_SKILLS_DIR}/tools/resolve-remotes.sh" "$path") || {
+      echo "ERROR: osac-installer has no remote pointing to osac-project/osac-installer."
+      echo "  Add one (any name works): git -C \"$path\" remote add <name> https://github.com/osac-project/osac-installer.git"
+      # Stop or prompt user — umbrella Step 8 cannot proceed without this mapping
+      _resolve_out=""
+    }
+    if [[ -n "$_resolve_out" ]]; then
+      eval "$_resolve_out"
+      OSAC_REMOTES[osac-installer]="$UPSTREAM_REMOTE"
+    fi
+  fi
+fi
 ```
 
-Store `OSAC_REMOTE` per repo for use in all subsequent steps. All git commands
+Store remotes in `OSAC_REMOTES` keyed by **checkout directory name** (e.g.
+`fulfillment-service`, `osac-installer`) for use in all subsequent steps.
+Map the UI label `osac (umbrella)` → key `osac-installer`. All git commands
 that reference the osac-project remote (`git fetch`, `git push`, `git tag`,
-`git ls-remote`, `git rev-parse`) use `$OSAC_REMOTE` instead of a hardcoded
+`git ls-remote`, `git rev-parse`) use `${OSAC_REMOTES[$repo]}` (or
+`${OSAC_REMOTES[osac-installer]}` for the umbrella) instead of a hardcoded
 remote name.
 
 If a selected repo is not found, tell the user:
@@ -194,5 +220,5 @@ if [ -n "$(git -C "$path" status --porcelain)" ]; then
 fi
 ```
 
-Warn the user but do not block. Tags are created on `$OSAC_REMOTE/main`, not
-the local working tree.
+Warn the user but do not block. Tags are created on `${OSAC_REMOTES[$repo]}/main`,
+not the local working tree.
