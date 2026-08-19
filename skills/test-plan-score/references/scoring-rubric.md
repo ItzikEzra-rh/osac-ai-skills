@@ -49,7 +49,7 @@ and how tests run, not what they test.
 
 **Calibration:**
 - G=0: 32 detailed TCs with specific API calls but zero mention of test framework, test files, or fixtures
-- G=1: "E2E tests using pytest in osac-test-infra" (names repo and framework)
+- G=1: "E2E tests using pytest in osac-test-infra" (names repository and framework)
 - G=2: "E2E test in `tests/disk_image/test_disk_image_lifecycle.py` using grpc fixture, `GRPCClient.create_disk_image()`, following the pattern in `test_virtual_network_lifecycle.py`"
 
 ### 3. Scope Fidelity (0-2)

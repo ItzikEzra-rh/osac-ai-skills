@@ -62,8 +62,8 @@ For every TC in the testplan:
 - **Preconditions** — concrete system state (not just "system running")?
 - **Steps** — numbered with specific API calls and parameters?
 - **Expected Results** — observable outcomes with specific values?
-  Check for banned vague phrases: "works correctly", "handles appropriately",
-  "is validated", "behaves as expected", "returns the correct value"
+  Check for banned vague phrases: "works as expected", "handles gracefully",
+  "is validated", "behaves properly", "returns the correct value"
 
 **Score each TC:**
 - **Complete** — all sections present and specific
