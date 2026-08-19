@@ -77,7 +77,10 @@ Before scoring, read:
 1. **testplan.md** — the plan being scored
 2. **design.md** — `enhancements/<slug>/design.md` (for Scope Fidelity)
 3. **prd.md** — `enhancements/<slug>/prd.md` (for requirement coverage)
-4. **Scoring rubric** — `templates/scoring-rubric.md`
+4. **Scoring rubric** — `references/scoring-rubric.md`
+5. **Test strategy** — `references/osac-test-strategy.md`
+6. **Test infra reference** — `references/osac-test-infra-reference.md`
+7. **Operator test patterns** — `references/osac-operator-test-patterns.md`
 
 ## Scoring Process
 

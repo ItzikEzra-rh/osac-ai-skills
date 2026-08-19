@@ -42,7 +42,7 @@ The input follows the ai-workflows format:
 1. **testplan.md** — the plan being reviewed
 2. **design.md** — `enhancements/<slug>/design.md`
 3. **prd.md** — `enhancements/<slug>/prd.md`
-4. **OSAC test strategy** — `context/osac-test-strategy.md`
+4. **OSAC test strategy** — `../test-plan-score/references/osac-test-strategy.md`
 
 ## Review Checks
 
