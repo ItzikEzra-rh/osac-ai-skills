@@ -169,6 +169,7 @@ rules:
     severity: warning
     groups:
       function/method: off
+      repo/repository/codebase: off
 
   # Check if instruction count in a file exceeds LLM instruction budget (~150)
   content-instruction-budget:
