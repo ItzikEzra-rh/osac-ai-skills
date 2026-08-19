@@ -97,8 +97,8 @@ Look for:
 - TC-IDs with specific API calls, parameters, field values
 - Concrete expected results (status codes, field values, state transitions)
 - Specific error types (InvalidArgument, FailedPrecondition, NotFound)
-- The ai-workflows format bans vague Expected Results phrases
-  (e.g., "works as expected", "handles gracefully") — check compliance
+- The ai-workflows format bans vague Expected Results — each result
+  must state a specific observable outcome, not a restatement of the AC
 
 **0** = Vague steps/results. "test CRUD", "verify lifecycle"
 **1** = Names scenarios but inputs/outputs lack specifics
@@ -115,7 +115,7 @@ Look for:
 - References to existing test patterns to follow
 
 **0** = No test infrastructure references at all
-**1** = Names the framework/repository but not specific files or fixtures
+**1** = Names the framework and codebase but not specific files or fixtures
 **2** = References specific test files, fixtures, helpers, and patterns
 
 Note: referencing production code (proto fields, API methods) is NOT

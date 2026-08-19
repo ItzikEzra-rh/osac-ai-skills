@@ -32,8 +32,9 @@ numbered steps, and concrete expected results.
 - S=1: Steps name the gRPC method but Expected Results say "returns the correct response"
 - S=2: Steps: "Call `DiskImages/Create` with source_type=REGISTRY, source_ref='quay.io/containerdisks/fedora:41', guest_os_family=LINUX, architecture=[AMD64]" / Expected Results: "Response status 200 OK, Response contains DiskImage with non-empty `id`, `metadata.creation_timestamp` set, `spec.lifecycle` = AVAILABLE"
 
-**ai-workflows quality gate:** The format bans vague Expected Results phrases
-("works correctly", "handles appropriately", "is validated"). Check compliance.
+**ai-workflows quality gate:** The format bans vague Expected Results — each
+result must state a specific observable outcome (status code, field value,
+error type), not a restatement of the acceptance criteria.
 
 ### 2. Grounding (0-2)
 
@@ -49,7 +50,7 @@ and how tests run, not what they test.
 
 **Calibration:**
 - G=0: 32 detailed TCs with specific API calls but zero mention of test framework, test files, or fixtures
-- G=1: "E2E tests using pytest in osac-test-infra" (names repository and framework)
+- G=1: "E2E tests using pytest in osac-test-infra" (names codebase and framework)
 - G=2: "E2E test in `tests/disk_image/test_disk_image_lifecycle.py` using grpc fixture, `GRPCClient.create_disk_image()`, following the pattern in `test_virtual_network_lifecycle.py`"
 
 ### 3. Scope Fidelity (0-2)
