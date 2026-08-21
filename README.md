@@ -1,10 +1,12 @@
 # osac-ai-skills
 
-Dedicated repository for OSAC AI skills and the tooling that only exists to
-support or validate them:
+Agent Skills and supporting tooling for
+[OSAC](https://github.com/osac-project/docs) (Open Sovereign AI Cloud) — an
+open source fulfillment system for provisioning Kubernetes clusters and
+compute instances with networking capabilities. This repository hosts:
 
 - Native Agent Skills under `skills/`
-- Skillsaw lint config and CI (`.skillsaw.yaml`, `.github/workflows/`)
+- [Skillsaw](https://skillsaw.org/) lint config and CI (`.skillsaw.yaml`, `.github/workflows/`)
 - Generic agent skill fan-out (`tools/link-agent-skills.sh`)
 - Shared helper scripts consumed by specific skills (`tools/resolve-remotes.sh`,
   `tools/jira-safe-create.sh`)
@@ -15,6 +17,9 @@ when) lives in consumer repos — primarily `osac/tools/bootstrap.sh`, and
 until cutover also `osac-workspace/bootstrap.sh`. `flightctl/ai-workflows`
 remains a separate vendored dependency of those consumers; it is not hosted
 here.
+
+For skill-authoring conventions, versioning rules, and how to contribute a
+skill, see [`AGENTS.md`](AGENTS.md) and [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ## Consumer fan-out
 
@@ -69,9 +74,8 @@ files already there (e.g. a workspace-only rule with no reason to be shared):
   same reason as `.design/context/*.md`.
 
 `reference/*.md` (codebase-analysis excerpts like `ARCHITECTURE.md`,
-`CONVENTIONS.md`) is intentionally **not** centralized here — per
-[OSAC-4008](https://redhat.atlassian.net/browse/OSAC-4008), those document a
-specific downstream codebase's current internals, not portable skill
+`CONVENTIONS.md`) is intentionally **not** centralized here — those document
+a specific downstream codebase's current internals, not portable skill
 guidance, and live in `osac/docs/` instead, co-located with the code they
 analyze.
 
