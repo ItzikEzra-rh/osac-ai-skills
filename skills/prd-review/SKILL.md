@@ -10,7 +10,7 @@ description: |
   "is this PRD ready", "review the requirements doc", or references a PRD
   file or PR.
 metadata:
-  version: "0.1.0"
+  version: "0.1.1"
 ---
 
 # OSAC PRD Reviewer
@@ -327,9 +327,20 @@ Show what's good and what needs improvement. For design leakage, quote the
 offending text and show what a user-focused rewrite would look like.}
 ```
 
+## Confidentiality Check
+
+Before scoring, scan the entire PRD for references to specific customer
+names, program names, or engagement names. The `enhancement-proposals`
+repository is public — any such reference is a **Critical** finding
+regardless of rubric scores. The PRD must describe capabilities in terms
+of what is needed, not who requested it. Customer-specific language should
+be abstracted into generic stakeholder or deployment-scenario descriptions
+(e.g., "a sovereign-cloud deployment" rather than naming the program or
+customer).
+
 ## Severity Classification
 
-- **Critical**: Any zero-scored criterion. Also: missing required sections, no personas identified, PRD reads like a design document.
+- **Critical**: Any zero-scored criterion. Also: missing required sections, no personas identified, PRD reads like a design document. Also: any reference to a specific customer name, program name, or engagement name — the enhancement-proposals repo is public.
 - **Important**: Score of 1 on any criterion. Also: vague Out of Scope boundaries, weakly testable user stories or requirements, scope creep signals, requirements stated as generic capabilities without explicit use cases, content outside the PRD template's sections, unsourced numeric thresholds/SLAs, near-duplicate user stories within the same persona (see Right-Sized's "Flag regardless of score").
 - **Suggestion**: Style improvements, additional Out of Scope detail, deeper risk analysis, more specific metrics.
 

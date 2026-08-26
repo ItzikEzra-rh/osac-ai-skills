@@ -10,7 +10,7 @@ description: |
   "is this design ready", "review PR on enhancement-proposals", or references a PR
   on osac-project/enhancement-proposals.
 metadata:
-  version: "0.1.0"
+  version: "0.1.1"
 ---
 
 # OSAC Design Document Reviewer
@@ -238,9 +238,20 @@ Show what's good and what needs improvement.}
 that cover similar scope. Note what this design does well or could learn from them.}
 ```
 
+## Confidentiality Check
+
+Before scoring, scan the entire design document for references to specific
+customer names, program names, or engagement names. The
+`enhancement-proposals` repository is public — any such reference is a
+**Critical** finding regardless of rubric scores. The design must describe
+capabilities in terms of technical requirements and deployment scenarios,
+not who requested them. Customer-specific language should be abstracted
+into generic descriptions (e.g., "a sovereign-cloud deployment" rather
+than naming the program or customer).
+
 ## Severity Classification
 
-- **Critical**: Any zero-scored criterion. Also: missing tenant isolation on new resources, fundamental architectural misalignment, breaking changes without migration path, security gaps.
+- **Critical**: Any zero-scored criterion. Also: missing tenant isolation on new resources, fundamental architectural misalignment, breaking changes without migration path, security gaps. Also: any reference to a specific customer name, program name, or engagement name — the enhancement-proposals repo is public.
 - **Important**: Score of 1 on any criterion. Also: incomplete sections, missing personas, unclear workflow, vague non-goals, generic risks, thin implementation details, relevant dimension neither addressed nor deferred.
 - **Suggestion**: Style improvements, deeper alternatives discussion, more specific test plan, documentation polish.
 

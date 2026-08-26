@@ -7,6 +7,14 @@ This file is read during the `/draft` phase. It is not included in the final out
 
 These apply across all sections:
 
+- **No customer or engagement names.** The `enhancement-proposals` repository
+  is public. Never reference specific customer names, program names,
+  engagement names, or other confidential business information in design
+  document content. Describe design context in terms of the technical
+  capability or deployment scenario, not who requested it. If source
+  material references specific customers, abstract them into generic
+  language (e.g., "a sovereign-cloud deployment" rather than naming the
+  program or customer).
 - **Favor conciseness.** Long design documents don't get read. Every sentence should earn its place.
 - Write in third person, present tense.
 - **Be specific.** No vague language: "efficient data structure" -> name the structure. "Appropriate caching" -> specify the cache strategy and invalidation approach. "Standard error handling" -> define the error taxonomy.
