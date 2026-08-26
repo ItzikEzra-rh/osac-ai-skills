@@ -15,6 +15,13 @@ sections below apply; do not add sections the OSAC template doesn't have.
 
 These apply across all sections:
 
+- **No customer or engagement names.** The `enhancement-proposals` repository
+  is public. Never reference specific customer names, program names,
+  engagement names, or other confidential business information in PRD
+  content. Describe requirements in terms of the capability needed, not who
+  requested it. If Jira labels or comments reference specific customers,
+  abstract them into generic stakeholder language (e.g., "a sovereign-cloud
+  deployment" rather than naming the program or customer).
 - **Favor conciseness.** These documents are read by humans. Write enough
   to communicate clearly and no more. If a section can be said in three
   sentences, do not use ten. Long PRDs don't get read — there are no
