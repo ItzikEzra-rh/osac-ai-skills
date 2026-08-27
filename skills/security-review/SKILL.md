@@ -3,7 +3,7 @@ name: security-review
 description: Adversarial security review of a branch's changes before PR submission. Scans everything changed since diverging from a base ref (main by default, committed, staged, and unstaged, via merge-base) for RBAC/authz issues, injection, data exposure, permission-manifest widening, embedded secrets, prompt-injection patterns, and OSAC-specific policy violations (tenant isolation, multi-tenancy). Use standalone before opening a PR, via review-gate (which pairs it with performance-review), or via create-pr's config-driven pre-flight gate, which invokes it directly. Adapted from a production multi-agent review pipeline's security dimension.
 allowed-tools: Read, Grep, Bash, Glob
 metadata:
-  version: "0.1.1"
+  version: "0.2.0"
 ---
 
 # Security Review
@@ -145,6 +145,49 @@ passes it to both reviewers so they agree on exactly what's in scope.
   controllers that skip the `osac.openshift.io/management-state` check or a
   namespace predicate that other controllers of the same resource type
   enforce.
+
+## After each finding — expand the pattern class
+
+When a finding's root cause is pattern-matching, allow-listing /
+denylisting, enum or status-string branching, or regex alternation,
+**do not stop at the first instance of that approach** — including
+when that first instance is only `ADVISORY`. Walk siblings before
+emitting the final report. Batch once per approach (do not re-walk
+for every finding that shares it).
+
+Skip this expansion only for true one-offs (literal secret, single
+missing authz check with no shared helper/pattern, typo, docs-only).
+
+Before emitting the final report, for each such approach:
+
+1. **Name the approach** in one sentence (e.g. "regex-substring masking
+   of an untrusted diff line" or "enum of safe GitHub file statuses").
+2. **Check siblings in the changed code** of that same approach: other
+   alternation branches of the same regex; other values of the same
+   allowlist/`frozenset`/constant set; other arms of the same
+   `match`/`switch`/`if-elif` status chain; other call sites of the
+   same helper in the diff — including helpers or later passes that
+   do the same job, and values with no explicit arm. Use Grep if
+   needed; say what you checked.
+3. **Report every unguarded sibling as its own finding** — one native
+   list line, or one create-pr table row, with **exactly one**
+   `path:line` per row. Extra unguarded siblings are their own rows.
+   Stopping at the first hit is wrong. **Assess severity
+   independently** for each sibling from its call path, guards, and
+   impact; do not copy the triggering instance's tag. A similar arm
+   that is dead, unreachable, or already guarded may be `ADVISORY` or
+   omitted.
+4. **Prefer a structural / fail-closed Suggestion** over "add this one
+   case to the list." If an invariant is the sound fix ("only X and Y
+   are identity-preserving; every other status fails closed" / "remove
+   the unsafe regex class and require positive provenance"), put that
+   in the Suggestion column.
+
+Worked examples (regex siblings, status-enum siblings, and a
+one-off negative control):
+[sibling-pattern-examples.md](references/sibling-pattern-examples.md)
+(**read before finalizing** any finding that matches the triggers
+above).
 
 ## Severity
 
