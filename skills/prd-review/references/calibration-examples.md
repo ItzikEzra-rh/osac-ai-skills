@@ -37,6 +37,35 @@ Read the section for the criterion currently being scored.
 
 ## 4. Right-Sized — Focused and economical scope?
 
+**Increment-sizing banding:** 0 = collapses several increments, burying the one deliverable step among capabilities that depend on it working first; 1 = one step plus a few capabilities that could be deferred without weakening it; 2 = one step plus only what it cannot work without.
+
+**Establishing the baseline.** The baseline is what a persona can already do
+end to end in this capability domain — not what components exist, and not
+what the PRD promises. Read it from the PRD's own Problem Statement, which
+usually declares it in the first sentence ("OSAC CaaS manages creation,
+scaling, and deletion, but provides no managed path for upgrading" states a
+baseline of nothing for upgrades). State the baseline in the review so the
+author can contest it; a wrong baseline invalidates the score, and only the
+author may know of shipped work the PRD failed to mention.
+
+Judge the baseline by capability, not component: a component with many
+merged EPs can still be entering a new domain, and an API letting a user
+*declare* a property is not prior art for *changing* it. Prior EPs in the
+same component — including ones this PRD lists as dependencies — do not by
+themselves establish a baseline. Ask what the PRD makes newly possible, then
+check whether anything shipped already does a version of that.
+
+When the baseline is nothing, the one step is a **walking skeleton** — the
+thinnest end-to-end path plus the ability to see whether it worked. When
+there is a baseline, the same question is narrower but not weaker: the step
+must be usable on its own, not a slice that only pays off once the next two
+PRDs land. Do not push the other way either: a step a persona cannot
+complete — initiating an upgrade with no way to see whether it worked — is
+not a smaller increment, it is an unusable one. One step, not half of one.
+
+Raise this mode in the first review pass — scope feedback delivered after
+rounds of line-level review discards work that was competently done.
+
 - R=0: "Add storage support, networking policy enforcement, and cluster monitoring for CaaS." — three independent capabilities for different concerns.
 - R=0: "East-west connectivity: Ethernet fabric provisioning, InfiniBand tenant isolation, NVLink partition management, VPC peering, and cross-fabric validation." — five independent capabilities that each serve different fabric types and could ship independently. This should be split into individual features per fabric type.
 - R=1: "Add CaaS cluster storage and add tenant storage quota management." — storage provisioning and quota management serve different workflows (day-1 vs day-2) and could ship independently.
@@ -44,6 +73,11 @@ Read the section for the criterion currently being scored.
 - R=1: A PRD covering one coherent capability (e.g., exposing one existing inventory field through the API) but restating the same story two or three times across near-identical Acceptance Criteria bullets, defining terms already covered by `osac-dimensions.md`, and stating numeric SLAs with no traceable source (a pattern that appeared in `enhancement-proposals#169`) — the underlying scope is fine, but the document is padded well past what that scope needs.
 - R=2: "CaaS cluster storage: automatic provisioning, readiness visibility, and cleanup on deletion." — provisioning without visibility is incomplete; cleanup without provisioning is meaningless. Tightly coupled.
 - R=2: `OSAC-1332-caas-cluster-storage` (47 lines) — one coherent capability, each section states its content once, no restatement across sections.
+- R=0 (increment sizing, baseline is nothing): `OSAC-1415-cluster-upgrade-caas` as merged — the first PRD to deliver anything in the upgrades domain, scoped as a mature upgrade product across 15 Tenant User stories: version discovery, risk review and explicit risk acknowledgment, a cancellation window, upgrade history, version-divergence notifications, and EOL limited-support state, alongside the initiate-and-monitor core. Nothing in it is independent of "cluster upgrade," so it does not fail on bundling — it fails because the domain had no shipped baseline and the PRD scoped the finished version of it. Note the prior EP it depends on, `OSAC-1269-cluster-version-api`, gave CaaS a way to *declare* a cluster's version; that is not prior art for *changing* one, and does not make this a mature domain. This merged before the first-increment test existed and is the case it was written from — cite it as a scope calibration, not as a criticism of its author or reviewers.
+- R=2 (increment sizing, baseline is nothing): The skeleton the same PRD could have started from — two stories: a Tenant User initiates an upgrade to a platform-allowed target version, and observes whether it is running, succeeded, or failed. A tenant can upgrade a cluster and see the outcome. Note the merged version's fourth state, `pending`, is absent here — it exists only to create the cancellation window, so it defers with cancellation. Everything else in the merged version becomes a follow-up Feature, sequenced once something works end to end.
+- R=0 (increment sizing, baseline exists): With the upgrade skeleton shipped — a tenant can upgrade a cluster and see the outcome — a follow-up PRD scoping upgrade history, version-divergence notifications, skew warnings, and EOL limited-support state. The baseline is no longer nothing, so this is not a walking-skeleton finding, but four separately valuable and separately deferrable steps are still collapsed into one PRD. Recommend an Outcome with one Feature per step, sequenced.
+- R=2 (increment sizing, baseline exists): The same baseline, a PRD scoping upgrade history alone — a Tenant User can see which version transitions occurred and their outcomes. Valuable the day it ships, and it does not depend on the divergence or EOL work landing first.
+- Important finding, not a Right-Sized score change (compensating mechanism): `OSAC-1415`'s "brief cancellation window during which the upgrade remains pending" exists because the PRD's own Assumptions record that OpenShift cannot cancel a running upgrade. The PRD invents a pending state to make cancellation possible rather than deferring cancellation along with the constraint — new user-facing surface in a domain with no working baseline yet.
 
 ## 5. Testability — Verifiable requirements?
 

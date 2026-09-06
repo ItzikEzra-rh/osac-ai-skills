@@ -24,6 +24,16 @@ it belongs in the PRD. If no, it belongs in the design.
 - No API fields, controller names, playbook names, or env vars
 - Acceptance criteria are PM-verifiable scenarios, not engineering checklists
 - Optional sections are omitted (not filled with placeholders)
+- The Problem Statement says what a persona can already do end to end in this
+  capability domain — or that nothing does it yet. Reviewers size the scope
+  against that sentence.
+- A PRD scopes one deliverable step past that current state, not the finished
+  version of the capability. Later steps become separate Features under the
+  same Outcome. When the current state is nothing, the step is a walking
+  skeleton: the thinnest end-to-end path a persona can use, plus the ability
+  to see whether it worked. Judge by capability, not component — a component
+  with many merged EPs can still be entering a new domain, and an API that
+  lets a user declare a property is not prior art for changing it.
 
 ### Design EP Expectations
 - All template sections must be present, even if marked "TBD" or "N/A"
@@ -55,6 +65,14 @@ it belongs in the PRD. If no, it belongs in the design.
 | Generic risks | "Risk: Implementation might have bugs" | "Risk: IPv6 dual-stack adds testing complexity. Mitigation: Make IPv6 optional, support IPv4-only mode" |
 | Inconsistent terminology | "Floating IP" / "PublicIP" / "External IP" used interchangeably | Define terms in a Terminology section and use consistently |
 | Workflow gaps | Jumps from creation to deletion | Include all lifecycle operations (create, read, update, delete, start/stop) |
+| Several increments in one PRD | One PRD covers discovery, execution, cancellation, history, and warnings — the finished version of the capability rather than the next step past today | Scope one deliverable step (when nothing ships today, the walking skeleton: one usable path plus success/failure visibility) and name the deferred increments in Out of Scope |
+| Designing around a stated limitation | Inventing user-facing surface to soften a platform constraint the document itself records as an assumption (e.g. a pending state added to make an uncancellable operation cancellable) | Defer the capability along with the constraint; revisit once the base capability ships |
+
+**Ordering note:** "Workflow gaps" and "Several increments in one PRD" pull in
+opposite directions, and which applies depends on the current state. Full
+lifecycle coverage is the expectation once the domain's core operation ships —
+before that, a partial lifecycle is the point, and the gaps belong in Out of
+Scope rather than being filled in.
 
 ## EP Reference Library
 

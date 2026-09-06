@@ -137,6 +137,15 @@ These apply across all sections:
 ## Problem Statement
 
 - Lead with the user's pain, not the solution.
+- **State the current state explicitly in one sentence:** what a persona
+  can already do end to end in this capability domain today, or that
+  nothing does it yet. "OSAC CaaS manages creation, scaling, and deletion,
+  but provides no managed path for upgrading a cluster's version" does
+  this — a reader learns the upgrade baseline is empty. Reviewers size the
+  increment against this sentence, so getting it wrong or leaving it out
+  costs review rounds later. State it by capability, not by component: an
+  existing API that lets a user declare a property is not a baseline for
+  changing it.
 - Quantify impact if the source material supports it (e.g., "affects N
   tenants," "adds M minutes per deployment").
 - Explain the cost of inaction — what happens if this work is not done.
@@ -159,6 +168,18 @@ These apply across all sections:
   dimension in the checklist just to show coverage.
 - If there is little to say beyond what the user stories already convey,
   a short list (2-4 items) is correct — do not pad to look thorough.
+- **Scope one step past the current state named in the Problem
+  Statement**, not the finished version of the capability. Each later step
+  is its own Feature under the same Outcome. Day-2 operations, lifecycle
+  observability, and edge-case handling are usually later steps; name them
+  in Out of Scope instead.
+- **When the current state is nothing, that step is a walking skeleton:**
+  the thinnest end-to-end path a persona can actually use, plus the
+  ability to see whether it worked. Judge this by capability, not by
+  component — a component with many merged EPs can still be entering a new
+  domain.
+- A step still has to be usable on its own. Do not slice so thin that a
+  persona cannot complete anything until the next PRD lands.
 
 ## Out of Scope
 
@@ -172,6 +193,10 @@ These apply across all sections:
 - **This section is optional.** If there's nothing beyond the obvious,
   omit the section body entirely — do not write "N/A" or invent
   non-goals to fill the section.
+- When later increments were deliberately deferred, this section carries
+  them by name — "cancellation, operation history, and per-component
+  granularity are deferred to follow-up Features" — so a reader can see
+  the shape of the whole domain without the PRD scoping all of it.
 
 ## User Stories
 
@@ -202,6 +227,10 @@ These apply across all sections:
 - Assumptions are valuable specifically because they invite challenge.
   Reviewers should be able to look at this list and say "that one isn't
   true" before implementation begins.
+- An assumption recording a platform limitation is a reason to leave the
+  affected capability out of scope, not a prompt to design a workaround
+  for it. If a listed constraint is being softened by user-facing surface
+  invented elsewhere in the PRD, defer both.
 - **Not the same as `[Assumption: ...]` markers.** Inline markers flag AI
   judgment calls during drafting — they are transient and resolved with
   the user before the document is saved. This section captures

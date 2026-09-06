@@ -2,7 +2,7 @@
 name: osac-feature
 description: Create Feature issues in the OSAC Jira project, or complete empty placeholder Features. Use when the user wants to create a Feature, enhancement, or new capability request for OSAC.
 metadata:
-  version: "0.3.0"
+  version: "0.4.0"
 ---
 
 # OSAC Feature Creation
@@ -190,43 +190,33 @@ Compare against `jira me` if helpful — there is no separate user-lookup comman
 On assign failure, capture stderr, report the error, and continue bootstrap
 (Feature exists; user can assign manually with `jira issue assign "$KEY" …`).
 
+## Scope Check
+
+**Read [scope-check.md](references/scope-check.md) and run it before the
+confirm gate**, once the summary and description are gathered. A Feature is
+the unit a PRD and a Design are written against, so an over-scoped Feature
+produces an over-scoped PRD — discovered weeks later, in review.
+
+In short: establish what a persona can already do end to end in this
+capability domain, then ask whether this Feature is one deliverable step past
+that or several. When it is several, recommend a Jira **Outcome** with one
+Feature per step and create only the first. This is advice, not a gate — if
+the user reaffirms the single Feature, create it and move on.
+
 ## Confirm Before Creating
 
 **Do not call `jira issue create` or takeover `jira issue edit` until the user confirms.**
 
-Present a summary and wait for explicit approval.
-
-Create:
-
-```text
-Ready to create in Jira:
-
-  Feature:     <FEATURE_SUMMARY>
-  Component:   <COMPONENT>
-  Team:        <TEAM>
-  Customer:    <name or none>
-  UI work:     yes | no
-  Fix version: <version> | backlog (unset)
-  Labels:      [osac-ux, osac-ui if UI work][, customer, customer:<name>] | none
-  Assignee:    <name or unassigned>
-
-  Bootstrap epic:  <FEATURE_SUMMARY> - Bootstrap
-    Labels: bootstrap[, no-ui if no UI work]; fix version, component, and team copied from Feature (when set)
-  Bootstrap tasks: PRD - <FEATURE_SUMMARY>, Design - <FEATURE_SUMMARY>
-    [, UX Design - <FEATURE_SUMMARY>, UI Design - <FEATURE_SUMMARY> if UI work]
-
-  (Gate tasks do not receive fix version. PRD/Design tasks get <TEAM>;
-   UX/UI Design tasks always get OSAC-UI regardless of <TEAM>.)
-
-Proceed? (yes/no)
-```
-
-Takeover (empty placeholder — edit that key, do not create a second Feature):
+Present a summary and wait for explicit approval. Use the header and Feature
+line for the path in play — on takeover, edit that key; never create a second
+Feature.
 
 ```text
-Ready to complete existing Feature <KEY> in Jira:
+Create:    Ready to create in Jira:
+Takeover:  Ready to complete existing Feature <KEY> in Jira:
 
-  Feature:     <FEATURE_SUMMARY> (<KEY>)
+  Feature:     <FEATURE_SUMMARY>[ (<KEY>) on takeover]
+  Outcome:     <OUTCOME_KEY> (parent) | none
   Component:   <COMPONENT>
   Team:        <TEAM>
   Customer:    <name or none>
@@ -266,6 +256,7 @@ Execute in order. **Read each reference file before its step** — do not skip.
 | Invalid summary (JQL/shell unsafe chars, >243 chars) | Reject before confirm; ask user to revise |
 | Stored Feature summary fails the same validation | Stop; report the key; do not rename or take over |
 | User declines confirm gate | Stop; no Jira creates or edits |
+| Outcome create or reparent failed | Non-fatal; report the manual `jira issue edit "$KEY" -P "$OUTCOME_KEY" </dev/null`; continue bootstrap |
 | Empty placeholder Feature (user-supplied key or same-summary) | Take over: fill the standard body; run bootstrap against the existing key |
 | Non-empty Feature (real description or any children) | Stop; report the key; never overwrite |
 | User-supplied key is not an OSAC Feature | Stop; report project/type; never overwrite |
@@ -296,6 +287,7 @@ Output to user on success:
 Feature created or completed:
 
 Jira:           https://redhat.atlassian.net/browse/<KEY>
+Outcome:        https://redhat.atlassian.net/browse/<OUTCOME_KEY> | none
 Component:      <component>
 Team:           <team>
 Fix version:    <version> | backlog (unset)
@@ -313,6 +305,9 @@ Bootstrap tasks:
   (PRD/Design get team <team>; UX/UI Design get team OSAC-UI — see above
    for any team edit failures, which are non-fatal and reported live)
 Status:         New
+
+[Follow-up Features to create once this one is underway: <steps 2..N>
+ — Outcome path only]
 ```
 
 If bootstrap aborted after Feature (or epic) creation, report what was created,
@@ -338,7 +333,10 @@ See [feature-body-template.md](references/feature-body-template.md) for the Jira
   and UI Design tasks are created (`REQUIRES_UI` gates the full UX → UI track)
 - UX Design task gets `osac-ux`; UI Design task gets `osac-ui`; PRD and Design
   have no labels; bootstrap epic gets `bootstrap` (and `no-ui` when `REQUIRES_UI=no`)
-- Jira hierarchy: Feature → Bootstrap epic → gate tasks (PRD, Design, [UX Design, UI Design])
+- Jira hierarchy: [Outcome →] Feature → Bootstrap epic → gate tasks (PRD,
+  Design, [UX Design, UI Design]). An Outcome groups the Features that deliver
+  one capability domain incrementally and is optional — see
+  [scope-check.md](references/scope-check.md)
 - Gate task summaries include the Feature title (`<gate> - ${FEATURE_SUMMARY}`,
   e.g. `PRD - <FEATURE_SUMMARY>`) so they're identifiable outside the epic/Feature —
   see [bootstrap-tasks.md](references/bootstrap-tasks.md)

@@ -10,7 +10,7 @@ description: |
   "is this PRD ready", "review the requirements doc", or references a PRD
   file or PR.
 metadata:
-  version: "0.1.1"
+  version: "0.2.0"
 ---
 
 # OSAC PRD Reviewer
@@ -210,34 +210,43 @@ See [calibration-examples.md § 3](references/calibration-examples.md#3-user-fac
 #### 4. Right-Sized — Focused and economical scope? (0-2)
 
 Is the PRD scoped to a coherent set of capabilities, and does it treat
-that scope economically? This criterion has two equally-weighted failure
-modes — bundling unrelated work, and padding a single coherent capability
-with more content than it needs. Either one caps the score; a PRD is not
-"right-sized" just because it avoids the other.
+that scope economically? This criterion has three equally-weighted failure
+modes — bundling unrelated work, padding a single coherent capability with
+more content than it needs, and collapsing several increments of one
+capability into a single PRD. Any one caps the score; a PRD is not
+"right-sized" just because it avoids the other two.
 
 **Bundling:** When multiple capabilities are present, test independence:
 could each ship on its own and provide value? Capabilities that cannot
 function without each other are one feature regardless of how many user
 stories they span.
 
-**Verbosity:** A focused PRD can still fail this criterion by restating
-the same point across multiple sections, including content the template
-doesn't call for, or stating specifics with no traceable source. Long
-PRDs don't get read — there are no awards for a long PRD. Favor the PRD
-that says what it needs to say once over the one that says it three
-times with different wording.
+**Verbosity:** A focused PRD still fails here if it restates the same
+point across sections, includes content the template doesn't call for, or
+states specifics with no traceable source. Long PRDs don't get read —
+there are no awards for a long PRD.
 
-- 0 = Bundles 3+ independent capabilities that serve different personas or purposes, OR pads a single capability so heavily (restated stories, non-template sections, invented specifics) that a reader cannot extract the actual scope without cutting through the padding.
-- 1 = Bundles 1-2 separable capabilities that could ship independently, OR is scoped to one coherent capability but treats it uneconomically (the same requirement restated more than once, non-template content that duplicates another section).
-- 2 = Focused and economical — capabilities require each other to function, and the document states its scope once, without restatement or padding.
+**Increment sizing:** Every PRD builds on a baseline — what a persona can
+already do end to end in this capability domain. Take it from the PRD's
+Problem Statement, not from your own expertise; state it in the review so
+the author can contest it; then ask whether the scope is one deliverable
+step past it or several collapsed. When the baseline is nothing, that
+step is a walking skeleton: the thinnest end-to-end path a named persona
+can use, plus the ability to see whether it worked.
 
-See [calibration-examples.md § 4](references/calibration-examples.md#4-right-sized--focused-and-economical-scope) for R=0/1/2 worked examples, including the bundling and verbosity failure modes.
+- 0 = Bundles 3+ independent capabilities that serve different personas or purposes, OR pads a single capability so heavily (restated stories, non-template sections, invented specifics) that a reader cannot extract the actual scope without cutting through the padding, OR collapses several increments past the baseline into one PRD.
+- 1 = Bundles 1-2 separable capabilities that could ship independently, OR is scoped to one coherent capability but treats it uneconomically (the same requirement restated more than once, non-template content that duplicates another section), OR is one step past the baseline plus extras that could be deferred without weakening it.
+- 2 = Focused and economical — capabilities require each other to function, the scope is one step past the baseline, and the document states that scope once, without restatement or padding.
 
-When a PRD scores 0 for bundling, recommend restructuring as an epic with
-individual features that can be prioritized, estimated, and delivered
-independently. When a PRD scores low for verbosity, recommend cutting the
-specific padding named in the finding rather than a general "make this
-shorter" note.
+**Read [calibration-examples.md § 4](references/calibration-examples.md#4-right-sized--focused-and-economical-scope) before scoring this criterion** — it carries R=0/1/2 worked examples for all three modes and the rules for establishing a baseline.
+
+For bundling, recommend restructuring as a Jira Outcome with individual
+Features that can be prioritized, estimated, and delivered independently.
+For verbosity, name the specific padding to cut rather than a general
+"make this shorter" note. For increment sizing, name the one step
+explicitly — which stories constitute it — and move the rest to follow-up
+Features under the same Outcome; the author needs to see what remains,
+not only what is cut.
 
 **Flag regardless of score.** The following are Important findings (see
 Severity Classification) whenever present, independent of the numeric
@@ -257,13 +266,14 @@ than folded silently into the score:
   (not just across personas — see the WHAT criterion's persona
   consolidation rule for the cross-persona case). Recommend merging into
   one story.
+- A **compensating mechanism** — user-facing surface existing only to
+  soften a platform limitation the PRD records as an Assumption.
+  Recommend deferring both.
 
-Report at most 3 instances per bullet above. If more exist, name the
-clearest 1-2 examples with their location and summarize the rest in one
-sentence (e.g., "and 4 more near-duplicate stories across User
-Stories") rather than listing every occurrence — this list should stay
-proportionate to the PRD's actual scope, the same standard it holds the
-PRD to.
+Report at most 3 instances per bullet. If more exist, name the clearest
+1-2 with their location and summarize the rest in one sentence ("and 4
+more near-duplicate stories across User Stories") — this list should stay
+proportionate to the PRD's scope, the same standard it holds the PRD to.
 
 #### 5. Testability — Verifiable requirements? (0-2)
 
@@ -294,6 +304,10 @@ Present findings as a structured review:
 ```markdown
 ## PRD Review: {title}
 
+**Baseline:** {what a persona can already do end to end in this domain, or
+"nothing"} → {is this PRD one step past that, or several?}. Correct this if
+it's wrong — the Right-Sized score depends on it.
+
 ### Rubric Scores
 
 | Criterion | Score | Notes |
@@ -301,7 +315,7 @@ Present findings as a structured review:
 | WHAT (clear need) | X/2 | {explain what need is described and how clearly; note persona/dimension coverage} |
 | WHY (justification) | X/2 | {cite the specific evidence found or note its absence} |
 | User-Facing Focus | X/2 | {note any design leakage or lack thereof} |
-| Right-Sized | X/2 | {assess scope — independent capabilities? economical treatment of scope?} |
+| Right-Sized | X/2 | {assess scope — independent capabilities? economical treatment of scope? one step past the stated baseline?} |
 | Testability | X/2 | {which requirements are verifiable by using the product?} |
 | **Total** | **X/10** | **PASS / FAIL** |
 
@@ -341,13 +355,12 @@ customer).
 ## Severity Classification
 
 - **Critical**: Any zero-scored criterion. Also: missing required sections, no personas identified, PRD reads like a design document. Also: any reference to a specific customer name, program name, or engagement name — the enhancement-proposals repo is public.
-- **Important**: Score of 1 on any criterion. Also: vague Out of Scope boundaries, weakly testable user stories or requirements, scope creep signals, requirements stated as generic capabilities without explicit use cases, content outside the PRD template's sections, unsourced numeric thresholds/SLAs, near-duplicate user stories within the same persona (see Right-Sized's "Flag regardless of score").
+- **Important**: Score of 1 on any criterion. Also: vague Out of Scope boundaries, weakly testable user stories or requirements, scope creep signals, requirements stated as generic capabilities without explicit use cases, content outside the PRD template's sections, unsourced numeric thresholds/SLAs, near-duplicate user stories within the same persona, compensating mechanisms for a documented platform limitation (see Right-Sized's "Flag regardless of score").
 - **Suggestion**: Style improvements, additional Out of Scope detail, deeper risk analysis, more specific metrics.
 
 ## Notes
 
 - Score based on what's in the PRD, not what you think should be there — if information is genuinely unavailable, "TBD" markers are acceptable
-- The WHAT criterion uses `osac-dimensions.md` to check persona and dimension coverage — but features that don't touch networking shouldn't be penalized for not addressing networking
 - Compare against the PRD template at `enhancement-proposals/guidelines/prd_template.md` for structural compliance
 - See `enhancement-proposals/guidelines/prd_guide.md` for the author-facing guidance this rubric is calibrated against
 - A PRD that names specific controllers, playbooks, env vars, or internal conditions has design leakage. This is the most common failure mode — score it under User-Facing Focus
