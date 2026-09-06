@@ -193,15 +193,16 @@ On assign failure, capture stderr, report the error, and continue bootstrap
 ## Scope Check
 
 **Read [scope-check.md](references/scope-check.md) and run it before the
-confirm gate**, once the summary and description are gathered. A Feature is
-the unit a PRD and a Design are written against, so an over-scoped Feature
-produces an over-scoped PRD — discovered weeks later, in review.
+confirm gate**, once summary and description are gathered. A Feature is the
+unit a PRD and a Design are written against, so an over-scoped Feature
+produces an over-scoped PRD. It asks whether this Feature is one deliverable
+step past what users can already do or several; when several, it recommends a
+Jira **Outcome** with one Feature per step and scopes this Feature to the
+first.
 
-In short: establish what a persona can already do end to end in this
-capability domain, then ask whether this Feature is one deliverable step past
-that or several. When it is several, recommend a Jira **Outcome** with one
-Feature per step and create only the first. This is advice, not a gate — if
-the user reaffirms the single Feature, create it and move on.
+Advice, not a gate; it **decides only** and touches no Jira — the Outcome is
+created after the confirm gate, per
+[outcome-creation.md](references/outcome-creation.md).
 
 ## Confirm Before Creating
 
@@ -216,7 +217,9 @@ Create:    Ready to create in Jira:
 Takeover:  Ready to complete existing Feature <KEY> in Jira:
 
   Feature:     <FEATURE_SUMMARY>[ (<KEY>) on takeover]
-  Outcome:     <OUTCOME_KEY> (parent) | none
+  Outcome:     create "<OUTCOME_SUMMARY>" | <OUTCOME_KEY> (existing) | none
+  Deferred:    <later steps as follow-up Features — Outcome path only>
+
   Component:   <COMPONENT>
   Team:        <TEAM>
   Customer:    <name or none>
@@ -246,7 +249,8 @@ Execute in order. **Read each reference file before its step** — do not skip.
 |------|------------|--------|
 | 1 | [bash-patterns.md](references/bash-patterns.md) | Source helpers and safe-create temps |
 | 2 | [feature-body-template.md](references/feature-body-template.md) | Create Feature, or take over an empty placeholder; set missing fix version and team; assign if requested |
-| 3 | [bootstrap-epic.md](references/bootstrap-epic.md) | Create or reuse bootstrap epic; verify parent linkage |
+| 2a | [outcome-creation.md](references/outcome-creation.md) | **Only when `OUTCOME_MODE` is set:** create or verify the Outcome, reparent the Feature onto it. Else skip |
+| 3 | [bootstrap-epic.md](references/bootstrap-epic.md) | Create or reuse bootstrap epic; verify parent linkage (to the **Feature**, not the Outcome) |
 | 4 | [bootstrap-tasks.md](references/bootstrap-tasks.md) | Create PRD, Design[, UX/UI Design] gate tasks; apply team |
 
 ## Error Handling
@@ -256,7 +260,8 @@ Execute in order. **Read each reference file before its step** — do not skip.
 | Invalid summary (JQL/shell unsafe chars, >243 chars) | Reject before confirm; ask user to revise |
 | Stored Feature summary fails the same validation | Stop; report the key; do not rename or take over |
 | User declines confirm gate | Stop; no Jira creates or edits |
-| Outcome create or reparent failed | Non-fatal; report the manual `jira issue edit "$KEY" -P "$OUTCOME_KEY" </dev/null`; continue bootstrap |
+| Outcome create failed (no `OUTCOME_KEY`) | Non-fatal; continue unparented — report the Feature and the deferred steps. No reparent command; there is no key |
+| Reparent onto Outcome failed (`OUTCOME_KEY` exists) | Non-fatal; report the manual `jira issue edit "$KEY" -P "$OUTCOME_KEY" </dev/null`; continue bootstrap |
 | Empty placeholder Feature (user-supplied key or same-summary) | Take over: fill the standard body; run bootstrap against the existing key |
 | Non-empty Feature (real description or any children) | Stop; report the key; never overwrite |
 | User-supplied key is not an OSAC Feature | Stop; report project/type; never overwrite |
@@ -287,7 +292,7 @@ Output to user on success:
 Feature created or completed:
 
 Jira:           https://redhat.atlassian.net/browse/<KEY>
-Outcome:        https://redhat.atlassian.net/browse/<OUTCOME_KEY> | none
+Outcome:        <see outcome-creation.md § Report> | none
 Component:      <component>
 Team:           <team>
 Fix version:    <version> | backlog (unset)
@@ -305,9 +310,6 @@ Bootstrap tasks:
   (PRD/Design get team <team>; UX/UI Design get team OSAC-UI — see above
    for any team edit failures, which are non-fatal and reported live)
 Status:         New
-
-[Follow-up Features to create once this one is underway: <steps 2..N>
- — Outcome path only]
 ```
 
 If bootstrap aborted after Feature (or epic) creation, report what was created,
@@ -329,30 +331,25 @@ See [feature-body-template.md](references/feature-body-template.md) for the Jira
 
 - OSAC project key: `OSAC`
 - Customer-driven features: add `customer` and `customer:<name>` labels on the Feature only
-- When `REQUIRES_UI=yes`: Feature gets `osac-ux` and `osac-ui`; both UX Design
-  and UI Design tasks are created (`REQUIRES_UI` gates the full UX → UI track)
-- UX Design task gets `osac-ux`; UI Design task gets `osac-ui`; PRD and Design
-  have no labels; bootstrap epic gets `bootstrap` (and `no-ui` when `REQUIRES_UI=no`)
+- Labels: Feature gets `osac-ux`/`osac-ui` when `REQUIRES_UI=yes`, matching the
+  UX Design and UI Design tasks; PRD and Design have none; bootstrap epic gets
+  `bootstrap` (plus `no-ui` when `REQUIRES_UI=no`)
 - Jira hierarchy: [Outcome →] Feature → Bootstrap epic → gate tasks (PRD,
-  Design, [UX Design, UI Design]). An Outcome groups the Features that deliver
-  one capability domain incrementally and is optional — see
-  [scope-check.md](references/scope-check.md)
+  Design, [UX Design, UI Design]). An Outcome optionally groups the Features
+  that deliver one capability domain incrementally — sizing in
+  [scope-check.md](references/scope-check.md), mechanics in
+  [outcome-creation.md](references/outcome-creation.md). The bootstrap epic
+  always parents to the Feature, never to the Outcome
 - Gate task summaries include the Feature title (`<gate> - ${FEATURE_SUMMARY}`,
   e.g. `PRD - <FEATURE_SUMMARY>`) so they're identifiable outside the epic/Feature —
   see [bootstrap-tasks.md](references/bootstrap-tasks.md)
 - Bootstrap epic: create without `-P`, then `jira issue edit -P` — Epic create with `-P` on a Feature parent returns HTTP 400; use `</dev/null` on all jira create/edit to avoid stdin hangs (jira-cli#948)
 - If a Feature/epic/task create or edit is blocked by Cursor Auto-review, gated by a Claude Code permission prompt, or hangs silently, retry the **same** command per [jira-task-management](../jira-task-management/SKILL.md)'s "Approval blocks vs. stdin hangs on create/edit" — keep `--no-input`/`</dev/null`. Create retries keep `--template`; takeover body edits keep `-b` (jira-cli `issue edit` has no `--template`). Do **not** invent a skip-description path, which creates empty Features
 - Gate tasks track documentation milestones, not implementation work
-- **Fix version:** Feature chooses at confirm gate on create, or is reused from
-  the Feature on takeover; bootstrap epic copies when set; gate tasks never
-  receive `fixVersion`
 - **Team:** not writable via jira-cli (`customfield_10001`; see `apply_team()`
   in [bash-patterns.md](references/bash-patterns.md)) — set with a direct REST
-  call instead. Feature chooses at confirm gate on create, or is reused from
-  the Feature on takeover; bootstrap epic Component and Team come from the
-  Feature (in-memory values only when the Feature field is empty); PRD/Design
-  gate tasks receive a copy; UX Design and UI Design gate tasks always get
-  `OSAC-UI` regardless of the Feature's team
+  call instead. Propagation rules for Team and fix version are stated once
+  under their input sections above; this list does not restate them
 - Existing bootstrap epics predating this convention are not backfilled — only
   epics created going forward get the `bootstrap` label and copied `fixVersion`
 - Temp files: source the shared script per [bash-patterns.md](references/bash-patterns.md)'s vendor-lookup snippet; call `add_temp` in the parent shell after each `new_temp` — see `jira-task-management` Safe create pattern

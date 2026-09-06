@@ -45,17 +45,18 @@ Create the Outcome and start with Feature #1, or create the single Feature
 as described? (outcome / single)
 ```
 
-If the user chooses the Outcome path:
+If the user chooses the Outcome path, record the decision in memory only —
+**create nothing yet.** Set:
 
-- Create the Outcome with `jira issue create -t Outcome` (same Component and
-  Team as the Features), or use an existing Outcome the user names — check
-  first with `jira issue list --project OSAC -q "type = Outcome"`.
-- Run the rest of the skill for **step 1 only**, then set the Outcome as its
-  parent with `jira issue edit "$KEY" -P "$OUTCOME_KEY" </dev/null` — the same
-  create-then-reparent pattern the bootstrap epic uses, for the same reason.
-- List the remaining steps in the final report as follow-up Features to create
-  when step 1 is underway. Do not create them now — scope shifts once the
-  first one ships.
+- `OUTCOME_MODE=new` plus a proposed `OUTCOME_SUMMARY`, or `OUTCOME_MODE=existing`
+  plus the `OUTCOME_KEY` the user named
+- `FEATURE_SUMMARY` narrowed to **step 1 only**
+- `DEFERRED_STEPS` — the remaining steps, for the confirm block and the report
+
+Then continue to the confirm gate as usual. Nothing reaches Jira until the
+user answers yes there; the Outcome is created in the create workflow, per
+[outcome-creation.md](outcome-creation.md). Do not create the later steps at
+all — scope shifts once step 1 ships.
 
 ## Boundaries
 
