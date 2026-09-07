@@ -1,6 +1,6 @@
 # Outcome Creation and Parenting
 
-Step 1 of the Jira create workflow in [SKILL.md](../SKILL.md), and only when
+Step 2a of the Jira create workflow in [SKILL.md](../SKILL.md), and only when
 [scope-check.md](scope-check.md) set `OUTCOME_MODE`. Skip this file entirely
 when the Feature is one step and needs no Outcome — most Features do not.
 
@@ -24,8 +24,10 @@ Use `</dev/null` on every create and edit, like the rest of this skill
 jira issue view "$OUTCOME_KEY" --raw </dev/null
 ```
 
-Stop and report if the view fails or `.fields.issuetype.name` is not
-`Outcome`. To offer the user a list first:
+If the view fails or `.fields.issuetype.name` is not `Outcome`, report it,
+skip parenting, and continue the bootstrap with the Feature unparented — the
+Feature already exists by this step, so never abort here. To offer the user a
+list first:
 
 ```bash
 jira issue list --project OSAC -q "type = Outcome" --plain --no-headers </dev/null
@@ -33,7 +35,9 @@ jira issue list --project OSAC -q "type = Outcome" --plain --no-headers </dev/nu
 
 `OUTCOME_MODE=new` — create it with the same Component and Team as the
 Feature. `OUTCOME_SUMMARY` takes the same validation as `FEATURE_SUMMARY`
-(see SKILL.md's Feature summary rules); reject and re-ask on failure.
+(see SKILL.md's Feature summary rules); reject and re-ask on failure. Set
+`OUTCOME_BODY` before the create — one paragraph naming the capability domain,
+then step 1 and `DEFERRED_STEPS` as the Features that will hang off it.
 
 ```bash
 jira issue create -t Outcome -P OSAC \
@@ -41,9 +45,11 @@ jira issue create -t Outcome -P OSAC \
   --no-input </dev/null
 ```
 
-Team is not writable via jira-cli — apply it with `apply_team` as the Feature
-does (see [bash-patterns.md](bash-patterns.md)). Capture the key into
-`OUTCOME_KEY` and validate it matches `OSAC-[0-9]+` before using it.
+Team is not writable via jira-cli — on a **new** Outcome, apply it with
+`apply_team` as the Feature does (see [bash-patterns.md](bash-patterns.md)).
+Never touch an existing Outcome's Team or Component; verify and parent only.
+Capture the key into `OUTCOME_KEY` and validate it matches `OSAC-[0-9]+`
+before using it.
 
 ## Parent the Feature
 
@@ -68,7 +74,7 @@ bootstrap over Outcome trouble.
 | Failure | Action |
 |---------|--------|
 | Outcome summary fails validation | Ask the user to revise before the confirm gate; do not create |
-| User-supplied key is not an OSAC Outcome | Report type and project; ask for another key or drop to no Outcome; never reparent |
+| User-supplied key is not an OSAC Outcome, or the view fails | Report type and project; ask for another key or drop to no Outcome; never reparent; continue the bootstrap |
 | Outcome create failed (no `OUTCOME_KEY`) | Continue with no Outcome — report that the Feature was created unparented and the deferred steps are untracked. **Do not print a reparent command**; there is no key to reparent to |
 | Outcome team edit failed | Report; continue — Component and hierarchy still landed |
 | Reparent failed (`OUTCOME_KEY` exists) | Report both keys and the manual `jira issue edit "$KEY" -P "$OUTCOME_KEY" </dev/null`; continue bootstrap |
@@ -79,12 +85,17 @@ Add to SKILL.md's success report when this file ran:
 
 ```text
 Outcome:        https://redhat.atlassian.net/browse/<OUTCOME_KEY> (<new | existing>)
+                | https://redhat.atlassian.net/browse/<OUTCOME_KEY> — created but
+                  Feature unparented (<reason>)
                 | not created (<reason>) — Feature is unparented
 
 Follow-up Features to create once this one is underway:
   2. <next step>
   3. <next step>
 ```
+
+`not created` is only for the case with no `OUTCOME_KEY` — reporting it after a
+failed reparent invites a duplicate Outcome on the next run.
 
 Name the deferred steps even when the Outcome failed — that list is the
 scoping decision, and it is worth more than the parent link.
