@@ -24,10 +24,10 @@ Use `</dev/null` on every create and edit, like the rest of this skill
 jira issue view "$OUTCOME_KEY" --raw </dev/null
 ```
 
-If the view fails or `.fields.issuetype.name` is not `Outcome`, report it,
-skip parenting, and continue the bootstrap with the Feature unparented — the
-Feature already exists by this step, so never abort here. To offer the user a
-list first:
+If the view fails, `.fields.project.key` is not `OSAC`, or
+`.fields.issuetype.name` is not `Outcome`, report it, skip parenting, and
+continue the bootstrap with the Feature unparented — the Feature already exists
+by this step, so never abort here. To offer the user a list first:
 
 ```bash
 jira issue list --project OSAC -q "type = Outcome" --plain --no-headers </dev/null
@@ -35,13 +35,18 @@ jira issue list --project OSAC -q "type = Outcome" --plain --no-headers </dev/nu
 
 `OUTCOME_MODE=new` — create it with the same Component and Team as the
 Feature. `OUTCOME_SUMMARY` takes the same validation as `FEATURE_SUMMARY`
-(see SKILL.md's Feature summary rules); reject and re-ask on failure. Set
-`OUTCOME_BODY` before the create — one paragraph naming the capability domain,
-then step 1 and `DEFERRED_STEPS` as the Features that will hang off it.
+(see SKILL.md's Feature summary rules); reject and re-ask on failure. Write the
+body to a temp file first and pass it with `--template`, as the Feature create
+does — one paragraph naming the capability domain, then step 1 and
+`DEFERRED_STEPS` as the Features that will hang off it:
 
 ```bash
+OUTCOME_BODY=$(new_temp osac-outcome-body)
+add_temp "$OUTCOME_BODY"
+# write the markdown body to $OUTCOME_BODY, then:
+
 jira issue create -t Outcome -P OSAC \
-  -s "$OUTCOME_SUMMARY" -C "$COMPONENT" -b "$OUTCOME_BODY" \
+  -s "$OUTCOME_SUMMARY" -C "$COMPONENT" --template "$OUTCOME_BODY" \
   --no-input </dev/null
 ```
 
