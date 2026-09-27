@@ -3,7 +3,7 @@ name: osac-cluster
 description: Boot, manage, or troubleshoot OSAC development clusters using cluster-tool.
 when_to_use: Use when the user needs an OSAC development cluster, wants to test locally, says "spawn a cluster", "boot a cluster", "I need a dev environment", asks about cluster-tool, or wants to run E2E tests on a real cluster. Also use when connecting to baremetal servers, pulling flavors, running refresh, or troubleshooting cluster issues.
 metadata:
-  version: "0.1.3"
+  version: "0.1.2"
 ---
 
 # OSAC Cluster — From Zero to Running Cluster
@@ -120,7 +120,7 @@ ssh root@<server-hostname> "df -h / /home /var /data 2>/dev/null"
 | Resource | Per cluster | Notes |
 |----------|------------|-------|
 | RAM | 64 GB | Each SNO VM uses 64 GB |
-| vCPUs | 16 | Each SNO VM uses 16 vCPUs |
+| vCPUs | 16 | Each SNO VM uses 16 cores |
 | Disk | ~100 GB for the flavor + small overlay per clone | Use the largest partition |
 
 **How many clusters can I run?** `floor(total_RAM / 64)`. A 256 GB server = 4 clusters max.
