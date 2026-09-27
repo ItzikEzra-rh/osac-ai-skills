@@ -120,7 +120,7 @@ client.delete_compute_instance_catalog_item(catalog_item_id=str)
 ### InstanceTypes (private)
 
 ```python
-client.create_instance_type(name=str, cores=int, memory_gib=int, description=str) -> str
+client.create_instance_type(name=str, vcpus=int, memory_gib=int, description=str) -> str
 client.get_instance_type(name=str) -> dict
 client.list_instance_type_names() -> list[str]
 client.update_instance_type(name=str, state=str) -> dict

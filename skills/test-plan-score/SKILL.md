@@ -1,7 +1,7 @@
 ---
 name: test-plan-score
 metadata:
-  version: 0.1.0
+  version: "0.1.1"
 description: |
   Score an OSAC test plan against the 5-dimension rubric (Specificity,
   Grounding, Scope Fidelity, Actionability, Consistency). Produces
