@@ -3,7 +3,7 @@ name: integration-coverage-review
 description: Integration-coverage review of a branch's changes before PR submission. Reads the consumer repo's own integration-testing guide and component agent-doc touched-area maps, classifies every touched behavior as unit-only or boundary-crossing, and flags changed boundaries whose qualifying suite, tier, executed command, or real-vs-faked disclosure is missing — mocks and unit doubles never satisfy a documented real boundary. Use standalone before opening a PR, or via create-pr's config-driven pre-flight gate, which invokes it directly. Repos without OSAC integration-testing documentation are out of scope and report NONE.
 allowed-tools: Read, Grep, Bash, Glob
 metadata:
-  version: "0.1.0"
+  version: "0.2.0"
 ---
 
 # Integration Coverage Review
@@ -42,6 +42,12 @@ stop and report the exact git error — don't treat a failed lookup as nothing
 to review. Diff from the merge-base, not `{BASE}` directly — `{BASE}` moves,
 and a raw `git diff {BASE}` pulls in changes this branch never made.
 
+**`git diff` alone misses untracked files.** If
+`git ls-files --others --exclude-standard` lists anything, read each listed
+file in full and include it in scope exactly as if it were an added file —
+a brand-new controller or integration test that was never `git add`-ed
+produces no diff output at all.
+
 ## What the review reads
 
 The judgment of required coverage comes from the **consumer repo's own
@@ -67,8 +73,10 @@ definitions:
 1. **Unit-only or boundary-crossing.** A change is unit-only when it touches
    no component boundary (no persistence, no deployed controller, no provider
    protocol, no cross-component call). A unit-only classification needs a
-   rationale; changes with no code (documentation, tooling, generated config)
-   need no coverage at all.
+   rationale. Changes with no code are exempt only when they cannot alter
+   boundary behavior; classify any change that can — including tooling and
+   generated configuration — against the touched boundaries per the rules
+   below.
 2. **Wrong-tier substitution.** For a boundary-crossing change, does a test
    exist at the tier the repo's guide names for that boundary? Unit tests and
    mocks do not satisfy a documented real boundary; a fixture-only or
