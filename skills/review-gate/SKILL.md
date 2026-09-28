@@ -3,7 +3,7 @@ name: review-gate
 description: Local pre-flight review gate that runs performance and security reviews against everything this branch has changed since diverging from a base ref (main by default, via merge-base — not a raw diff against the base's current tip) before PR submission, covering committed, staged, and unstaged changes uniformly. Orchestrates the performance-review and security-review skills in sequence and aggregates their findings into one actionable report. Use standalone before opening a PR — create-pr's own Step 4 pre-flight gate invokes reviewers directly per its config-driven list (skills/.config/create-pr-reviewers.yaml) and does not call this skill. Blocks on critical/important findings from either reviewer.
 allowed-tools: Read, Grep, Bash, Glob
 metadata:
-  version: "0.1.1"
+  version: "0.1.2"
 ---
 
 # Pre-Flight Review Gate
@@ -20,7 +20,7 @@ run it standalone whenever you want a two-reviewer pass without going
 through `create-pr`. `create-pr`'s own Step 4 pre-flight gate does **not**
 invoke this skill — it spawns reviewers directly from
 `skills/.config/create-pr-reviewers.yaml`'s config-driven list (currently
-three reviewers, not the two this skill always pairs), using a different
+four reviewers, not the two this skill always pairs), using a different
 output contract (a results table, not this skill's `[SEVERITY] file:line —
 description — fix` line format). See
 `skills/create-pr/references/reviewer-config.md` for that mechanism.

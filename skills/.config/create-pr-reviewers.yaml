@@ -33,6 +33,12 @@ reviewers:
     base: main
     enabled: true
 
+  - name: integration-coverage-review
+    skill: skills/integration-coverage-review/SKILL.md
+    category: Coverage
+    base: main
+    enabled: true
+
 prompt_template: |
   Run a {category} review on the current branch's changes. Read {skill} with
   the Read tool and follow it exactly, as if it were pasted inline here, for
