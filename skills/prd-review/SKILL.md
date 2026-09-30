@@ -10,7 +10,7 @@ description: |
   "is this PRD ready", "review the requirements doc", or references a PRD
   file or PR.
 metadata:
-  version: "0.2.0"
+  version: "0.4.0"
 ---
 
 # OSAC PRD Reviewer
@@ -51,11 +51,14 @@ ls .artifacts/prd/*/03-prd.md
 
 ## Load Context
 
-Before reviewing, read these files if they exist:
+Use `docs/` in OSAC checkouts or `reference/` in standalone CI workspaces.
+Read relative to that root:
 
-1. `.design/context/osac-dimensions.md` — services, personas, cross-cutting dimensions
-2. `.design/context/review-patterns.md` — reviewer feedback themes and anti-patterns
-3. `reference/ARCHITECTURE.md` — system architecture for technical grounding
+1. `agent-context/osac-dimensions.md` and `agent-context/review-patterns.md`
+2. `ARCHITECTURE.md` and `personas.md` when available
+
+If missing locally, follow both `.design/context/` forwarding files to the
+full GitHub documents. Report inaccessible context.
 
 ## Scoring Rubric
 
@@ -93,7 +96,7 @@ Does the PRD clearly describe what users can do or observe?
 
 ##### OSAC Dimensions Checklist
 
-Using `.design/context/osac-dimensions.md`, also check whether the PRD
+Using the loaded feature-dimensions context, also check whether the PRD
 addresses the OSAC dimensions relevant to this feature:
 - **Services**: Which services (BMaaS, CaaS, VMaaS, MaaS, Enclave) are in scope?
 - **Personas**: Cloud Provider Admin, Cloud Infrastructure Admin, Tenant Admin, Tenant User — which are affected and how?

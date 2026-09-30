@@ -1,30 +1,15 @@
-# Enclave Wizard Pipeline
+# Enclave Wizard pipeline
 
-Any feature that adds or modifies Helm values in `osac-installer` must consider the Enclave Wizard pipeline. The Wizard renders configuration controls automatically from the Helm chart's JSON Schema — no custom UI code is needed for standard fields.
+The canonical project context is maintained in the OSAC mono-repo at
+`docs/agent-context/enclave-wizard-pipeline.md`.
 
-**Pipeline:** `osac-installer` schema change → enclave OSAC plugin picks up the change → Enclave Wizard UI renders the control.
+Before using this context, read that full document from the OSAC checkout.
+Resolve the path relative to the OSAC repository root, not the vendored skills
+repository or the directory containing this file. If the local document is
+unavailable (for example in a standalone skills/evaluation workspace), fetch
+and read the [canonical enclave wizard pipeline](https://github.com/osac-project/osac/blob/main/docs/agent-context/enclave-wizard-pipeline.md).
+Follow its applicable references before planning, implementing, or reviewing.
 
-**When it applies:** Any feature that adds or modifies installer Helm values that operators configure during deployment (e.g., DNS provider, storage backend, feature toggles).
-
-## Schema-type-to-control mapping
-
-| JSON Schema construct | Wizard UI control | Example |
-|----------------------|-------------------|---------|
-| `enum` | Dropdown | DNS provider: `route53`, `infoblox` |
-| `boolean` | Checkbox | Enable bundled PostgreSQL |
-| `string` (no enum) | Free text input | External hostname |
-| `integer` / `number` | Numeric input | Worker node count |
-
-The schema file is [`osac-installer/charts/osac/values.schema.json`](https://github.com/osac-project/osac-installer/blob/main/charts/osac/values.schema.json). Validation rules, default values, and descriptions come from the schema — the Wizard enforces them automatically.
-
-## Design decompose artifacts
-
-`/design:decompose` must produce three artifacts when the pipeline applies:
-
-1. **osac-installer story** — add or update the Helm value in both `values.yaml` and `values.schema.json` with proper type, default, and description
-2. **Enclave plugin task** — pick up the schema change and expose the parameter, blocked-by the installer story (Component: `Enclave`)
-3. **Enclave UI task** — render the control in the Wizard, blocked-by the plugin task (Component: `Enclave`)
-
-## Complex additions
-
-If the feature requires custom UI logic beyond proxying a Helm value (e.g., multi-step wizards, conditional fields, API calls), flag the UI task as needing design discussion — the schema-driven approach won't cover it.
+This forwarding file preserves the `.design/context/enclave-wizard-pipeline.md` entry
+path used by skills, workflow templates, and `flightctl/ai-workflows`. Keep
+project details in the canonical document so all agents read the same source.

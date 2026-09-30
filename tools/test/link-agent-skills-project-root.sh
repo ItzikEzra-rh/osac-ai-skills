@@ -19,8 +19,8 @@ trap 'rm -rf "$TMPDIR_ROOT"' EXIT
 # Build an isolated standalone checkout under TMPDIR_ROOT so default-mode
 # linking never touches the developer's real .claude/.
 # Also mirrors real osac-ai-skills content the script materializes/verifies
-# unconditionally (or under --claude) even in standalone mode: .claude/rules/,
-# .claude/agents/, .claude/hooks/, .design/context/ (OSAC-4006), and
+# unconditionally (or under --claude) even in standalone mode: .claude/agents/,
+# .claude/hooks/, .design/context/ (OSAC-4006), and
 # .design/templates/, .prd/templates/ (OSAC-4008). In standalone mode
 # PROJECT_ROOT==REPO_ROOT, so materialize_shared_dir's self-symlink guard
 # no-ops — these must already exist as real files, not symlinks, same as a
@@ -36,7 +36,7 @@ make_standalone_fixture() {
     name=$(basename "$skill_dir")
     ln -sfn "${skill_dir%/}" "${isolated}/skills/${name}"
   done
-  for rel_dir in .claude/rules .claude/agents .claude/hooks .design/context .design/templates .prd/templates; do
+  for rel_dir in .claude/agents .claude/hooks .design/context .design/templates .prd/templates; do
     mkdir -p "${isolated}/${rel_dir}"
     cp "${REPO_ROOT}/${rel_dir}"/*.md "${isolated}/${rel_dir}/"
   done
@@ -176,6 +176,60 @@ test_safe_symlink_refuses_differing_real_file() {
   pass "safe_symlink still refuses a pre-existing real file that differs from canonical"
 }
 
+test_prunes_retired_shared_rules() {
+  local consumer name path
+  consumer=$(mktemp -d "${TMPDIR_ROOT}/consumer-retired-rules.XXXXXX")
+  link_native_skills_into "$consumer"
+  mkdir -p "${consumer}/.claude/rules" "${consumer}/home"
+  echo '# local rule' >"${consumer}/.claude/rules/local.md"
+  echo '# local copy' >"${consumer}/.claude/rules/architecture-patterns.md"
+  for name in networking-design-alignment request-path-tracing dev-conventions; do
+    path="${consumer}/.claude/rules/${name}.md"
+    if [[ "${name}" == request-path-tracing ]]; then
+      ln -s "${consumer}/.osac-ai-skills/.claude/rules/${name}.md" "$path"
+    elif [[ "${name}" == dev-conventions ]]; then
+      ln -s "${consumer}/home/.osac-ai-skills/.claude/rules/${name}.md" "$path"
+    else
+      ln -s "${REPO_ROOT}/.claude/rules/${name}.md" "$path"
+    fi
+  done
+  HOME="${consumer}/home" PROJECT_ROOT="$consumer" "$SCRIPT" --claude --verify >/dev/null
+
+  for name in networking-design-alignment request-path-tracing dev-conventions; do
+    [[ ! -L "${consumer}/.claude/rules/${name}.md" ]] \
+      || fail "retired ${name} link was not pruned"
+  done
+  [[ "$(cat "${consumer}/.claude/rules/architecture-patterns.md")" == '# local copy' ]] \
+    || fail "local architecture rule was modified"
+  [[ "$(cat "${consumer}/.claude/rules/local.md")" == '# local rule' ]] \
+    || fail "unrelated local rule was modified"
+  pass "retired vendor rule links are pruned while local rules are preserved"
+}
+
+test_preserves_consumer_rule_symlinks() {
+  local consumer name path target
+  consumer=$(mktemp -d "${TMPDIR_ROOT}/consumer-owned-rules.XXXXXX")
+  link_native_skills_into "$consumer"
+  mkdir -p "${consumer}/.claude/rules" "${consumer}/home"
+  for name in architecture-patterns dev-conventions; do
+    path="${consumer}/.claude/rules/${name}.md"
+    if [[ "${name}" == architecture-patterns ]]; then
+      target="${TMPDIR_ROOT}/other/osac-ai-skills/.claude/rules/${name}.md"
+    else
+      target="${TMPDIR_ROOT}/other/.osac-ai-skills/.claude/rules/${name}.md"
+    fi
+    ln -s "$target" "$path"
+  done
+
+  HOME="${consumer}/home" PROJECT_ROOT="$consumer" "$SCRIPT" --claude --verify >/dev/null
+
+  for name in architecture-patterns dev-conventions; do
+    path="${consumer}/.claude/rules/${name}.md"
+    [[ -L "$path" ]] || fail "consumer-owned ${name} link was removed"
+  done
+  pass "consumer-owned rule links to similarly named checkouts are preserved"
+}
+
 test_verify_with_linking_flags_links_then_verifies() {
   # Combined --all --with-ai-workflows --verify on a fresh consumer tree
   # (native skills present, agent umbrellas not) must link first, then verify.
@@ -279,6 +333,8 @@ test_default_project_root_links_in_repo
 test_project_root_override_links_consumer
 test_safe_symlink_promotes_identical_real_file
 test_safe_symlink_refuses_differing_real_file
+test_prunes_retired_shared_rules
+test_preserves_consumer_rule_symlinks
 test_verify_only_does_not_link
 test_verify_with_linking_flags_links_then_verifies
 test_verify_with_ai_workflows_only_links_workflows

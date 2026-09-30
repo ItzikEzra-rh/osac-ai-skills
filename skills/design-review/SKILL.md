@@ -10,7 +10,7 @@ description: |
   "is this design ready", "review PR on enhancement-proposals", or references a PR
   on osac-project/enhancement-proposals.
 metadata:
-  version: "0.1.1"
+  version: "0.3.0"
 ---
 
 # OSAC Design Document Reviewer
@@ -50,12 +50,19 @@ gh pr view <N> --repo osac-project/enhancement-proposals --json title,body,autho
 
 ## Load Context
 
-Before reviewing, read these files if they exist:
+Use `docs/` as the context root in an OSAC checkout, or `reference/` in a
+standalone CI review workspace. Read these paths relative to that root:
 
-1. `.design/context/osac-dimensions.md` — services, personas, cross-cutting dimensions
-2. `.design/context/review-patterns.md` — reviewer feedback themes, anti-patterns, design reference library
-3. `reference/ARCHITECTURE.md` — system architecture for technical grounding
-4. `osac-docs/personas.md` — canonical OSAC persona definitions
+1. `agent-context/osac-dimensions.md` — services, personas, relevant dimensions
+2. `agent-context/review-patterns.md` — review expectations and historical examples
+3. `ARCHITECTURE.md` and `personas.md` — technical and persona grounding
+
+If unavailable locally, follow the canonical GitHub links in
+`.design/context/osac-dimensions.md` and `.design/context/review-patterns.md`.
+Read the full linked documents, not just those forwarding files. For standalone
+workspaces, use [architecture](https://github.com/osac-project/osac/blob/main/docs/ARCHITECTURE.md)
+and [personas](https://github.com/osac-project/osac/blob/main/docs/personas.md).
+Report inaccessible context. Follow networking/Wizard references when applicable.
 
 ## Scoring Rubric
 
@@ -146,7 +153,7 @@ Check:
 - [ ] Alternatives section includes at least one real alternative with rationale for rejection
 - [ ] Design references its PRD (`prd:` frontmatter or link to `prd.md`) and addresses relevant personas through architectural decisions
 
-Using `.design/context/osac-dimensions.md`, also check cross-cutting dimension
+Using the loaded feature-dimensions context, also check cross-cutting dimension
 coverage — for each dimension relevant to this design, the design must address it or
 explicitly defer. Silence on a relevant dimension is a gap.
 

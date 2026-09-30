@@ -9,13 +9,12 @@ tooling that lints, validates, and vendors them — shared shell helpers
 (`tools/`), a skill-quality eval harness (`evals/`), and skillsaw
 lint/review CI (see Skill-Quality Linting below for the `skillsaw` link).
 
-Consumers (currently `osac-workspace`, later the `osac` mono-repo) vendor
-this repo as a dependency and fan its content out into their own
-`.claude/`, `.cursor/`, and `.gemini/` directories via their own bootstrap
-scripts, which call [`tools/link-agent-skills.sh`](tools/link-agent-skills.sh).
-Consumer-side fan-out
-mechanics (what gets symlinked where, how `--verify` works, which shared
-directories get materialized) are documented in [`README.md`](README.md) —
+The `osac` mono-repo vendors this repo as a dependency and fans its content
+out for supported coding agents through its bootstrap script, which calls
+[`tools/link-agent-skills.sh`](tools/link-agent-skills.sh).
+Consumer-side fan-out mechanics (what gets symlinked where, how `--verify`
+works, which shared directories get materialized) are documented in
+[`README.md`](README.md) —
 this file does not repeat that; it covers skill-authoring conventions for
 someone working **inside** this repository.
 
@@ -53,12 +52,12 @@ Read `skills/` itself for the current set in this checkout.
 ### Path References in Skill Content
 
 Paths inside a skill's own directory should be wrapped in markdown link
-syntax (e.g. `[references/foo.md](references/foo.md)`). Workspace-root and
+syntax (e.g. `[references/foo.md](references/foo.md)`). Mono-repo-root and
 cross-component paths — ones that only resolve once this repo is vendored
-into a consumer (e.g. `presentations/`, `osac/fulfillment-service/`) — stay
+into the `osac` checkout (e.g. `presentations/`, `fulfillment-service/`) — stay
 as backtick text instead, since a markdown link would point nowhere from
 inside this repo. This is the convention `.skillsaw.yaml`'s `content-unlinked-internal-reference`
-rule already accepts as an exception for `AGENTS.md`/`.claude/rules/*.md`'s
+rule already accepts as an exception for `AGENTS.md`'s
 bare-path style, and both that rule and `content-broken-internal-reference`
 accept for cross-component paths in skill content.
 
@@ -78,6 +77,13 @@ which fails the PR if a `SKILL.md`'s content changed but its
 string *changed* — it does not validate that the new value is a
 semantically correct bump.
 
+## Project context
+
+OSAC-specific architecture and planning context is maintained in the mono-repo's
+`docs/agent-context/`. Keep `.design/context/*.md` as stable forwarding documents
+for existing skill/workflow consumers; update the canonical OSAC documents when
+project behavior changes. Shared workflow templates remain in this repository.
+
 ## Shared Tooling
 
 [`tools/resolve-remotes.sh`](tools/resolve-remotes.sh) (fork vs. upstream
@@ -86,6 +92,19 @@ remote resolution) and [`tools/jira-safe-create.sh`](tools/jira-safe-create.sh)
 multiple skills, so they live once here instead of being copied into each
 skill. See [`README.md`](README.md)'s "Shared helper scripts" section for
 the full list and which skills consume each one.
+
+## Contribution Workflow
+
+- Work on a feature branch, not `main`, and base it on the upstream default
+  branch.
+- Resolve fork and upstream remotes by URL with `tools/resolve-remotes.sh`
+  before pushing. Push only to the contributor fork.
+- Prefix commit messages and PR titles with `OSAC-XXXX:` for linked work or
+  `NO-ISSUE:` otherwise.
+- Sign commits with `git commit -s`. AI-assisted commits use an
+  `Assisted-by: <actual tool> <contact>` trailer, never `Co-Authored-By`
+  for an AI tool.
+- OSAC implementation issues are Jira Tasks. Use `jira` CLI for Jira access.
 
 ## Skill-Quality Linting (skillsaw)
 
@@ -132,10 +151,9 @@ osac-ai-skills/
 │   ├── check-skill-version-bump.sh
 │   └── test/                       # Smoke/static tests for tools/ and skill families
 ├── evals/                           # Skill-quality eval harness (see evals/README.md)
-├── .design/                         # Design-workflow context/templates (fan-out — see README.md)
+├── .design/                         # Project-context forwarding files and workflow templates (fan-out)
 ├── .prd/                            # PRD-workflow templates (fan-out — see README.md)
 ├── .claude/
-│   ├── rules/                       # Shared canonical content (fan-out — see README.md)
 │   ├── agents/                      # Shared canonical content (fan-out — see README.md)
 │   └── hooks/                       # Shared canonical content (fan-out — see README.md)
 ├── .github/workflows/               # skillsaw, skillsaw-review, skill-version-check, update-docs

@@ -3,7 +3,7 @@ name: security-review
 description: Adversarial security review of a branch's changes before PR submission. Scans everything changed since diverging from a base ref (main by default, committed, staged, and unstaged, via merge-base) for RBAC/authz issues, injection, data exposure, permission-manifest widening, embedded secrets, prompt-injection patterns, and OSAC-specific policy violations (tenant isolation, multi-tenancy). Use standalone before opening a PR, via review-gate (which pairs it with performance-review), or via create-pr's config-driven pre-flight gate, which invokes it directly. Adapted from a production multi-agent review pipeline's security dimension.
 allowed-tools: Read, Grep, Bash, Glob
 metadata:
-  version: "0.2.0"
+  version: "0.3.0"
 ---
 
 # Security Review
@@ -127,7 +127,7 @@ passes it to both reviewers so they agree on exactly what's in scope.
 
 - **Tenant isolation metadata** — new resources (proto messages, CRDs, DB
   rows) missing `osac.openshift.io/tenant` or `osac.openshift.io/owner-reference`
-  annotations. See `.claude/rules/architecture-patterns.md`.
+  annotations. See the OSAC repository's root `AGENTS.md`.
 - **Cross-tenant data leakage in queries** — DAO/CEL-filter code
   (`internal/database/dao/`, `filter_translator.go` in fulfillment-service)
   that builds a query without a tenant-scoping clause, or that lets a
@@ -136,11 +136,11 @@ passes it to both reviewers so they agree on exactly what's in scope.
   `fulfillment-service/docs/API.md`, annotations must be opaque; a change that
   reads an annotation to make a security or authorization decision is a
   policy violation, not just a style issue.
-- **Custom headers relied on for security decisions** — the REST gateway only
-  forwards permanent HTTP headers and `Grpc-Metadata-*`-prefixed headers (see
-  `.claude/rules/request-path-tracing.md`); a header-based check that assumes
-  a custom header survives the gateway is either broken or, worse, silently
-  bypassed.
+- **Custom headers relied on for security decisions** — the REST gateway has
+  a custom matcher for the dry-run header and otherwise uses the default
+  matcher, which does not forward arbitrary custom headers. See
+  `fulfillment-service/docs/REQUEST_PATH_TRACING.md`; a header-based check
+  needs a REST-to-gRPC propagation test or it may be silently bypassed.
 - **Management-state / namespace predicate bypass** — osac-operator
   controllers that skip the `osac.openshift.io/management-state` check or a
   namespace predicate that other controllers of the same resource type
