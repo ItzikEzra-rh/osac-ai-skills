@@ -204,10 +204,10 @@ rules:
 
   # Detect bare path-like strings not wrapped in markdown link syntax
   # OSAC's skill authoring conventions (AGENTS.md) intentionally keep
-  # workspace-root and cross-component paths as backtick text, not markdown
+  # mono-repo-root and cross-component paths as backtick text, not markdown
   # links — reserving links for paths inside a skill's own directory. The
-  # remaining info-level violations on AGENTS.md / .claude/rules/*.md /
-  # cross-component paths are this accepted exception, not an oversight.
+  # remaining info-level violations on AGENTS.md and cross-component paths
+  # are this accepted exception, not an oversight.
   content-unlinked-internal-reference:
     enabled: auto
     severity: info
@@ -372,9 +372,8 @@ custom-rules: []
 
 # Blacklist: agent discovery dirs, optional ai-workflows vendors, and artifacts.
 exclude:
-  # Agent dirs: symlinks to skills/ or gitignored. .claude/rules/** and
-  # .claude/agents/** are NOT excluded here — they hold real canonical
-  # content (same files fanned out to consumers) and should be linted.
+  # Agent dirs: symlinks to skills/ or gitignored. .claude/agents/** is not
+  # excluded here: it holds canonical content and should be linted.
   - ".cursor/**"
   - ".gemini/**"
   - ".claude/skills/**"

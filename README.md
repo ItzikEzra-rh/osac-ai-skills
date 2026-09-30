@@ -1,7 +1,7 @@
 # osac-ai-skills
 
 Agent Skills and supporting tooling for
-[OSAC](https://github.com/osac-project/docs) (Open Sovereign AI Cloud) — an
+[OSAC](https://github.com/osac-project/osac) (Open Sovereign AI Cloud) — an
 open source fulfillment system for provisioning Kubernetes clusters and
 compute instances with networking capabilities. This repository hosts:
 
@@ -15,10 +15,9 @@ compute instances with networking capabilities. This repository hosts:
 Browse the live catalog: [https://osac-project.github.io/osac-ai-skills/](https://osac-project.github.io/osac-ai-skills/).
 
 This is the skills content store. Bootstrap/orchestration (what to clone and
-when) lives in consumer repos — primarily `osac/tools/bootstrap.sh`, and
-until cutover also `osac-workspace/bootstrap.sh`. `flightctl/ai-workflows`
-remains a separate vendored dependency of those consumers; it is not hosted
-here.
+when) lives in the `osac` mono-repo at `tools/bootstrap.sh`.
+`flightctl/ai-workflows` remains a separate vendored dependency; it is not
+hosted here.
 
 For skill-authoring conventions, versioning rules, and how to contribute a
 skill, see [`AGENTS.md`](AGENTS.md) and [`CONTRIBUTING.md`](CONTRIBUTING.md).
@@ -26,18 +25,12 @@ skill, see [`AGENTS.md`](AGENTS.md) and [`CONTRIBUTING.md`](CONTRIBUTING.md).
 ## Recommended Skill Sequence
 
 Canonical Feature → PRD → Design → Jira sync → Implement → E2E ordering for
-OSAC agent skills. Consumer repos (`osac/`, and until cutover
-`osac-workspace/`) link here rather than maintaining their own copy.
+OSAC agent skills. The `osac` mono-repo links here rather than maintaining its
+own copy.
 
-Run the consumer's bootstrap before a new session so skills are vendored and
-linked:
-
-- **osac (mono-repo):** `tools/bootstrap.sh` from the `osac/` checkout
-- **osac-workspace (until cutover):** `./bootstrap.sh` from the workspace root
-
-Do not run `osac/tools/bootstrap.sh` from an `osac/` nested inside
-`osac-workspace`. Skills are available in Claude Code, Cursor, and Gemini CLI
-after bootstrap (command syntax varies by tool).
+Run `tools/bootstrap.sh` from the `osac` mono-repo root before a new session
+so skills are vendored and linked. Skills are available in Claude Code,
+Cursor, Gemini CLI, and Codex after bootstrap (command syntax varies by tool).
 
 ### 1. Create a Jira Feature
 
@@ -136,20 +129,29 @@ the requested linking first, then verifies:
 tools/link-agent-skills.sh --all --with-ai-workflows --verify
 ```
 
-### Shared rules, agents, hook docs, and design context
+### Shared agents, hook docs, and design context
+
+OSAC project context is maintained alongside the code in
+[docs/agent-context/](https://github.com/osac-project/osac/tree/main/docs/agent-context).
+Root/component `AGENTS.md` reading triggers make it available to coding agents
+without activating a skill. The four `.design/context/*.md` entry paths remain
+available for review skills, PRD templates, and `flightctl/ai-workflows`; they
+instruct readers to load the canonical local document or its GitHub fallback.
+Merge the OSAC context migration before distributing these forwarding files.
 
 Beyond skill symlinks, the fan-out also materializes canonical content that
-lives directly at its real consumer-side path in this repo — `.claude/rules/`,
+lives directly at its real consumer-side path in this repo —
 `.claude/agents/`, `.claude/hooks/`, and `.design/context/` — as per-file
 symlinks into `$PROJECT_ROOT`'s matching path, alongside any consumer-local
-files already there (e.g. a workspace-only rule with no reason to be shared):
+files already there:
 
-- `.claude/rules/*.md`, `.claude/agents/*.md`, and `.claude/hooks/*.md` —
+- `.claude/agents/*.md` and `.claude/hooks/*.md` —
   materialized only when `--claude` (or `--all`) is passed; no Cursor/Gemini
   equivalent format exists to fan the same raw content out to. `.claude/hooks/`
   holds only shared *documentation* (e.g. `README.md`) — hook scripts
   themselves are consumer-specific executables, not portable content.
-- `.design/context/*.md` — materialized unconditionally. Agent-agnostic: read
+- `.design/context/*.md` — stable forwarding documents to OSAC's tracked
+  `docs/agent-context/*.md`, materialized unconditionally. Agent-agnostic: read
   directly by skill instructions (`design-review`, `prd-review`,
   `flightctl/ai-workflows`'s `prd`/`design`), not by any one coding agent's
   auto-attach mechanism.
@@ -192,5 +194,5 @@ yet — see `tools/test/*.sh` headers for invocation).
 
 ## Background
 
-See ADR 0001 in `osac-project/osac-workspace`:
+Historical background: ADR 0001 in the retired `osac-project/osac-workspace`:
 `decisions/0001-dedicated-ai-skills-repo.md`.

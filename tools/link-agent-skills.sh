@@ -13,17 +13,16 @@
 # ~/.ai-workflows or ./.ai-workflows is present. Consumers that need those
 # workflows still bootstrap ai-workflows themselves (e.g. osac/tools/bootstrap.sh).
 #
-# Also materializes shared content from this repo's own .claude/rules/,
-# .claude/agents/, .claude/hooks/, .design/context/, .design/templates/, and
+# Also materializes shared content from this repo's own .claude/agents/,
+# .claude/hooks/, .design/context/, .design/templates/, and
 # .prd/templates/ into the consumer's tree (per-file symlinks, alongside any
 # consumer-local files in the same dirs):
-#   .claude/rules/<name>.md      -> <this repo>/.claude/rules/<name>.md
 #   .claude/agents/<name>.md     -> <this repo>/.claude/agents/<name>.md
 #   .claude/hooks/<name>.md      -> <this repo>/.claude/hooks/<name>.md
 #   .design/context/<name>.md    -> <this repo>/.design/context/<name>.md
 #   .design/templates/<name>.md  -> <this repo>/.design/templates/<name>.md
 #   .prd/templates/<name>.md     -> <this repo>/.prd/templates/<name>.md
-# Rules/agents/hooks docs are Claude-only today (no Cursor/Gemini equivalent
+# Agent and hook docs are Claude-only today (no Cursor/Gemini equivalent
 # format to fan the same raw content out to). design/context, design/templates,
 # and prd/templates are agent-agnostic — read by skill instructions
 # (prd-review, design-review) or by flightctl/ai-workflows's draft.md skills
@@ -36,15 +35,14 @@
 # centralized here — per OSAC-4008, they're codebase-analysis excerpts of
 # osac/'s own internals, co-located with the code they analyze in
 # osac/docs/, not portable skill guidance.
-# OSAC-4006: centralized here (not duplicated per-consumer) so both osac and
-# osac-workspace pick this up automatically once they vendor+exec this script.
+# OSAC-4006: centralized shared materialization here for consumers.
 # OSAC-4008: added .design/templates and .prd/templates (section-guidance.md)
 # to this same mechanism.
 set -euo pipefail
 
 SCRIPT_DIR="$(realpath "$(dirname "${BASH_SOURCE[0]}")")"
 REPO_ROOT="$(realpath "${SCRIPT_DIR}/..")"
-# Consumers (osac-workspace, osac) may set PROJECT_ROOT to their own tree so
+# Consumers such as osac may set PROJECT_ROOT to their own tree so
 # agent links and --with-ai-workflows materialize there instead of inside this
 # skills repo. Unset → standalone clone behavior (repo root == REPO_ROOT).
 if [[ -n "${PROJECT_ROOT:-}" ]]; then
@@ -77,7 +75,7 @@ OSAC_SKILLS=(
 
 AI_WORKFLOW_SKILLS=(bugfix design e2e implement prd)
 
-SHARED_RULES=(architecture-patterns networking-design-alignment request-path-tracing dev-conventions)
+RETIRED_SHARED_RULES=(architecture-patterns networking-design-alignment request-path-tracing dev-conventions)
 SHARED_AGENTS=(quick-fix)
 SHARED_HOOKS=(README)
 SHARED_DESIGN_CONTEXT=(enclave-wizard-pipeline networking-decisions osac-dimensions review-patterns)
@@ -109,9 +107,9 @@ Always materializes .design/context/*.md, .design/templates/*.md, and
 .prd/templates/*.md (agent-agnostic; read by skill instructions or
 flightctl/ai-workflows's draft.md skills, not by any one coding agent's
 auto-attach mechanism).
-When --claude (or --all) is passed, also materializes shared rules
-(.claude/rules/*.md), agents (.claude/agents/*.md), and hook docs
-(.claude/hooks/*.md).
+When --claude (or --all) is passed, also materializes shared agents
+(.claude/agents/*.md) and hook docs (.claude/hooks/*.md), and removes
+symlinks to retired shared rules from this vendor.
 EOF
 }
 
@@ -207,8 +205,29 @@ materialize_shared_dir() {
   done
 }
 
-materialize_shared_rules() {
-  materialize_shared_dir ".claude/rules" "shared rule" "${SHARED_RULES[@]}"
+is_retired_shared_rule_link() {
+  local path="$1" name="$2" target vendor_root
+  # The old linker wrote absolute targets; match only documented vendor roots.
+  local vendor_roots=("${REPO_ROOT}" "${PROJECT_ROOT}/.osac-ai-skills")
+  [[ -L "${path}" ]] || return 1
+  target="$(readlink "${path}")"
+  [[ -n "${HOME:-}" ]] && vendor_roots+=("${HOME}/.osac-ai-skills")
+  for vendor_root in "${vendor_roots[@]}"; do
+    [[ "${target}" == "${vendor_root}/.claude/rules/${name}.md" ]] && return 0
+  done
+  return 1
+}
+
+prune_retired_shared_rules() {
+  [[ "${PROJECT_ROOT}" != "${REPO_ROOT}" ]] || return 0
+  local name path
+  for name in "${RETIRED_SHARED_RULES[@]}"; do
+    path="${PROJECT_ROOT}/.claude/rules/${name}.md"
+    if is_retired_shared_rule_link "${path}" "${name}"; then
+      rm "${path}"
+      echo "  Removed retired .claude/rules/${name}.md link"
+    fi
+  done
 }
 
 materialize_shared_agents() {
@@ -328,11 +347,23 @@ verify_shared_dir() {
   return "${missing}"
 }
 
-verify_shared_rules_agents() {
+verify_shared_agents_hooks() {
   local errors=0
-  verify_shared_dir ".claude/rules" "shared rule" "${SHARED_RULES[@]}" || errors=1
   verify_shared_dir ".claude/agents" "shared agent" "${SHARED_AGENTS[@]}" || errors=1
   verify_shared_dir ".claude/hooks" "shared hook doc" "${SHARED_HOOKS[@]}" || errors=1
+  return "${errors}"
+}
+
+verify_retired_shared_rules() {
+  [[ "${PROJECT_ROOT}" != "${REPO_ROOT}" ]] || return 0
+  local name path errors=0
+  for name in "${RETIRED_SHARED_RULES[@]}"; do
+    path="${PROJECT_ROOT}/.claude/rules/${name}.md"
+    if is_retired_shared_rule_link "${path}" "${name}"; then
+      echo "ERROR: retired .claude/rules/${name}.md link remains (run --claude to remove it)" >&2
+      errors=1
+    fi
+  done
   return "${errors}"
 }
 
@@ -354,7 +385,8 @@ run_verify() {
   echo "Verifying agent skill symlinks..."
   if [[ "${LINK_CLAUDE}" == true ]]; then
     verify_symlink "${PROJECT_ROOT}/.claude" "Claude" || errors=1
-    verify_shared_rules_agents || errors=1
+    verify_shared_agents_hooks || errors=1
+    verify_retired_shared_rules || errors=1
   fi
   if [[ "${LINK_CURSOR}" == true ]]; then
     verify_symlink "${PROJECT_ROOT}/.cursor" "Cursor" || errors=1
@@ -445,7 +477,7 @@ if [[ "${LINK_AI_WORKFLOWS}" == true ]]; then
 fi
 if [[ "${LINK_CLAUDE}" == true ]]; then
   link_agent_skills "${PROJECT_ROOT}/.claude" "Claude"
-  materialize_shared_rules
+  prune_retired_shared_rules
   materialize_shared_agents
   materialize_shared_hooks
 fi
