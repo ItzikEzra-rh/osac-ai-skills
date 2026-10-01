@@ -1,10 +1,12 @@
 ---
 name: test-plan-review
 metadata:
-  version: 0.1.0
+  version: 0.2.0
 description: |
   Completeness reviewer for ai-workflows testplans. Checks requirement
-  coverage, test case depth, structural consistency, and gap analysis.
+  coverage, integration-boundary fidelity, test case depth, structural
+  consistency, and gap analysis. A test case that exercises only a stub
+  without disclosing real-vs-faked fails the boundary-fidelity check.
   Run after scoring flags issues, or before publishing a testplan.
 
   Trigger when user says "review test plan", "check test completeness",
@@ -70,14 +72,30 @@ For every TC in the testplan:
 - **Shallow** — has structure but some sections are vague
 - **Incomplete** — missing required sections
 
-### Check 3: AC Coverage
+### Check 3: Integration Boundary Fidelity
+
+For every TC labeled as an integration test:
+- Does it name the required tier for the touched component (per the
+  component's touched-area map and the repo's integration-testing guide)?
+- Does it state the boundary whose behavior the case proves?
+- Does it disclose what runs for real versus what is simulated, mocked,
+  or omitted?
+- A case that exercises only a stub or test double without disclosing
+  real-vs-faked fails this check — it is named-but-faked, not coverage
+- A case whose tier does not match the documented boundary for that
+  behavior fails this check as wrong-tier
+
+**Output:** Table of integration TCs with tier / boundary / real-vs-faked
+disclosed, each Pass / Named-but-faked / Wrong-tier
+
+### Check 4: AC Coverage
 
 For each TC's metadata table, check the AC field:
 - Does the referenced AC exist in the story?
 - Is every story AC covered by at least one TC?
 - Report story ACs that have no TC mapping
 
-### Check 4: Priority and Automation Distribution
+### Check 5: Priority and Automation Distribution
 
 Verify the distribution makes sense:
 - Core CRUD and data integrity scenarios should be `critical`
@@ -85,7 +103,7 @@ Verify the distribution makes sense:
 - All scenarios should have an automation classification
 - Summary table counts should match actual TC counts
 
-### Check 5: Structural Consistency
+### Check 6: Structural Consistency
 
 - TC-IDs follow `TC-{req}-{NN}` sequentially per requirement
 - All TCs are grouped under their correct requirement heading
@@ -93,7 +111,7 @@ Verify the distribution makes sense:
 - Story references use consistent format throughout
 - Overview "Requirements covered" matches actual sections
 
-### Check 6: Gap Analysis Quality
+### Check 7: Gap Analysis Quality
 
 Review the Gaps section:
 - Is every uncovered requirement listed?

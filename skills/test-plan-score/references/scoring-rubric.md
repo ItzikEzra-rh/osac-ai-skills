@@ -17,6 +17,12 @@ numbered steps, and concrete expected results.
 - **Revise** (5-7): Address gaps, re-score
 - **Rework** (0-4 or any zero): Fundamental issues
 
+**Integration-boundary veto:** a plan is **Rework regardless of score** when
+any required integration case exercises only a stub or test double without
+disclosing real-vs-faked, or names a tier that does not match the documented
+boundary for that behavior. A perfect numeric score cannot make a named-but-faked
+case implementation-ready.
+
 ## Dimensions
 
 ### 1. Specificity (0-2)
@@ -38,15 +44,30 @@ error type), not a restatement of the acceptance criteria.
 
 ### 2. Grounding (0-2)
 
-**Is the plan grounded in the actual test codebase?**
+**Is the plan grounded in the actual test codebase — at the right layer and boundary?**
 
-- 0 = No reference to test frameworks, files, fixtures, or helpers
-- 1 = Names frameworks (pytest, Ginkgo) or repos but not specific files
-- 2 = References specific test files, fixtures (`grpc`, `k8s_hub_client`), helpers (`wait_for_*`), and existing test patterns
+- 0 = No reference to test frameworks, files, fixtures, or helpers; or an
+  integration case exercises only a stub or test double without disclosing
+  real-vs-faked
+- 1 = Names frameworks (pytest, Ginkgo) or repos but not specific files; or
+  names the tier but the boundary or the real-vs-faked disclosure is ambiguous
+- 2 = References specific test files, fixtures (`grpc`, `k8s_hub_client`),
+  helpers (`wait_for_*`), and existing test patterns; every integration case
+  names its tier, the boundary it proves, the suite it runs in, and whether
+  its dependencies run for real or are simulated
 
 **Important:** Referencing production code (proto fields, API methods, error
 types) is NOT grounding. Grounding means the test infrastructure — where
 and how tests run, not what they test.
+
+**Integration-boundary axis:** a plan scores high on the anchors above only
+when its integration cases prove the documented boundary. A suite that runs
+against a fake vendor, a mock broker, or a stub client is not evidence of a
+real component boundary merely because the plan labels it integration. Each
+integration case must state the required tier for that boundary (per the
+component's touched-area map), the boundary whose behavior the case proves,
+and what runs for real versus what is simulated or omitted. A case whose
+tier does not match the documented boundary is wrong-tier, not grounded.
 
 **Calibration:**
 - G=0: 32 detailed TCs with specific API calls but zero mention of test framework, test files, or fixtures

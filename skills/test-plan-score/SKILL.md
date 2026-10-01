@@ -1,11 +1,15 @@
 ---
 name: test-plan-score
 metadata:
-  version: 0.1.0
+  version: 0.2.0
 description: |
   Score an OSAC test plan against the 5-dimension rubric (Specificity,
-  Grounding, Scope Fidelity, Actionability, Consistency). Produces
-  structured verdict with per-dimension scores and actionable findings.
+  Grounding, Scope Fidelity, Actionability, Consistency). Grounding
+  includes the integration-boundary axis: every integration case must
+  prove the documented boundary at the right tier, with real-vs-faked
+  disclosed; a named-but-faked required case is Rework regardless of
+  score. Produces structured verdict with per-dimension scores and
+  actionable findings.
 
   Trigger when a testplan.md is pushed to enhancement-proposals, or
   when user says "score this test plan", "review the test plan".
