@@ -3,7 +3,7 @@ name: integration-coverage-review
 description: Integration-coverage review of a branch's changes before PR submission. Reads the consumer repo's own integration-testing guide and component agent-doc touched-area maps, classifies every touched behavior as unit-only or boundary-crossing, and flags changed boundaries whose qualifying suite, tier, executed command, or real-vs-faked disclosure is missing — mocks and unit doubles never satisfy a documented real boundary. Use standalone before opening a PR, or via create-pr's config-driven pre-flight gate, which invokes it directly. Repos without OSAC integration-testing documentation are out of scope and report NONE.
 allowed-tools: Read, Grep, Bash, Glob
 metadata:
-  version: "0.2.0"
+  version: "0.3.0"
 ---
 
 # Integration Coverage Review
@@ -50,8 +50,8 @@ produces no diff output at all.
 
 ## What the review reads
 
-The judgment of required coverage comes from the **consumer repo's own
-documentation**, never from this skill. Locate and read:
+The consumer repo for this reviewer is the OSAC `osac` monorepo. Required
+coverage comes from its own documentation. Locate and read:
 
 - `docs/INTEGRATION-TESTING.md` — the shared tier definitions and the
   affected component's section (touched-area requirements, test tiers and
@@ -82,6 +82,18 @@ definitions:
    mocks do not satisfy a documented real boundary; a fixture-only or
    double-only suite is not coverage of a real provider, deployed service, or
    real storage backend merely because it is labelled integration.
+   **OSAC deployed CRD and admission validation:** when a PR in `osac` adds or
+   modifies CRD validation rules (including CEL expressions) or webhook
+   configurations, require a component-integration test in Kind that installs
+   the generated CRD and, where applicable, the webhook configuration through
+   the affected component's documented deployment path. Exercise the changed
+   behavior through the Kubernetes API and assert the expected validation or
+   admission result. For `osac-operator`, this applies the
+   `Generated CRDs or manifests` requirement in `osac-operator/AGENTS.md`;
+   `docs/INTEGRATION-TESTING.md` defines Envtest as distinct from Kind
+   component-integration. Envtest coverage alone does not satisfy the Kind
+   requirement, even when it loads the same CRD, because it does not verify
+   the deployed artifacts and admission wiring.
 3. **Executed evidence.** The repo's guide names the suite and command for
    each tier. A required command with no executed, passing run is planned, not
    covered — record what execution would require (command, working directory,
@@ -100,16 +112,18 @@ passage (or gap ticket) the finding rests on:
 - `CRITICAL` — the change would report a documented real boundary as covered
   on the strength of unit tests, mocks, or test doubles alone; or coverage is
   claimed for a boundary the repo's guide explicitly lists as a tracked gap,
-  contradicting that guide.
+  contradicting that guide; or Envtest is reported as satisfying the OSAC
+  deployed CRD and admission requirement above.
 - `IMPORTANT` — a boundary-crossing change has no qualifying test at the named
-  tier, or the named integration command has no executed evidence, or a
+  tier, a CRD-validation or webhook-configuration change has no qualifying
+  Kind test, the named integration command has no executed evidence, or a
   touched documented gap is not cited as unresolved.
 - `ADVISORY` — classifications recorded but vague (no rationale, no command
   citation); traceability or wording improvements worth raising, not worth
   gating.
 
-A finding names the changed file or behavior and the repo's own doc passage
-applied — never a requirement this skill supplies from outside the repo.
+A finding names the changed file or behavior and cites its OSAC component map,
+the shared integration-testing guide, or the OSAC rule above.
 
 ## Output
 
