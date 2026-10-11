@@ -46,7 +46,10 @@ The input follows the testplan format:
 3. **prd.md** — `enhancements/<slug>/prd.md`
 4. **OSAC test strategy** — [test strategy](../test-plan-score/references/osac-test-strategy.md)
 5. The OSAC workspace's `docs/INTEGRATION-TESTING.md` planning-evidence section
-6. Each affected component's `AGENTS.md` touched-area map
+   and relevant component sections for tier names, commands, boundaries, and
+   documented coverage gaps
+6. Each affected component's `AGENTS.md` touched-area map and integration-test
+   guidance
 
 If the workspace guidance or a component map is unavailable, report that
 limitation and leave the required boundary unverified. Do not infer it from a
@@ -58,15 +61,35 @@ test's filename or from the word "integration".
 
 For each affected component and touched behavior:
 - Use the component's touched-area map to identify the required tier and
-  boundary. Check only boundaries that apply to this change.
+  boundary, and use the corresponding `docs/INTEGRATION-TESTING.md` section to
+  verify the suite and command. Check only boundaries that apply to this
+  change.
 - Map component-specific tier labels to the canonical tier in the shared
   guidance. Check ownership too: Unit, Envtest, component-integration, and
   Contract coverage for changed code belongs to [DEV]; deployed cross-component
   journeys belong to [QE].
-- Verify every required integration, Contract, or deployed E2E row identifies
-  the canonical tier, the boundary it exercises, an existing suite/file or
-  clearly proposed location, and which dependencies run for real versus being
-  mocked, stubbed, or omitted.
+- Require one selected canonical tier per coverage row. Slash-separated
+  alternatives or multiple candidate tiers are ambiguous. A manual case may
+  identify its procedure instead of a shell command and explain why a working
+  directory does not apply. Supplemental static/build checks may be listed
+  separately as non-test validation, but are not a test tier and cannot satisfy
+  a required test tier.
+- Verify every required Unit, Envtest, component-integration, Contract, or
+  deployed E2E row identifies
+  the owning component and behavior, requirement/interface references,
+  canonical tier, boundary, test-case IDs, existing suite/file or clearly
+  proposed location, verified command or concrete manual procedure, applicable
+  working directory or justified N/A, environment prerequisites, execution
+  status, and which dependencies run for real versus being mocked,
+  stubbed, or omitted.
+- Verify existing suites and commands against repository guidance. Label new
+  locations and unverified commands as proposed; identify manual paths as
+  manual procedures, not runnable shell commands. If a suite is unavailable or
+  a prerequisite is unresolved, require the owning follow-up's Jira URL or an
+  explicit statement that no owner/ticket exists.
+- Distinguish a planned test, an identified execution path, and a passed run.
+  `Not run` or `blocked` is an honest status, not a pass. A claimed pass needs
+  command or manual procedure and observed-result evidence; otherwise report it as not passed.
 - Compare the claimed tier and actual dependency boundary with the documented
   requirement. A case at a different tier does not satisfy it merely because
   it covers the same behavior. Unit and Envtest do not satisfy a required
@@ -75,20 +98,29 @@ For each affected component and touched behavior:
 - Treat a missing case for a required boundary as a coverage gap. Do not count
   a lower-tier case as coverage for it.
 
-**Hard failure:** If any required integration case claims the wrong tier for
-its documented boundary, or leaves real-versus-faked dependencies undisclosed,
-mark the review `NEEDS WORK` and label the finding `Rework veto`. Cite the test
+**Hard failure:** If a required case claims the wrong tier for its
+documented boundary, or claims a required real/deployed boundary while its
+described setup substitutes a mock/stub or omits a required component, mark the
+review `NEEDS WORK` and label the finding `Rework veto`. Cite the test
 case and the map or planning-evidence row. Do not apply this failure to a
 documented gap for unrelated behavior or when the map requires only a lower
 tier.
 
-Report a missing or mismatched owner as an ownership gap and mark `NEEDS WORK`;
-it is not a Rework veto unless the case also has a wrong tier or undisclosed
-real-versus-faked dependencies.
+Missing command or manual procedure, applicable working directory (or a
+justified N/A for a manual case), prerequisite, execution status, follow-up
+information, ambiguous tier, or missing/ambiguous dependency disclosure is an
+evidence gap, not a Rework veto. Mark the affected row incomplete and the plan `NEEDS WORK`; do not count
+it as an identified runnable path or passed coverage.
 
-**Output:** Table of required boundaries with status: Covered at required tier
-/ Wrong tier (Rework veto) / Real-versus-faked missing (Rework veto) / Gap /
-Owner gap / Unverified (source unavailable).
+Report a missing or mismatched owner as an ownership gap and mark `NEEDS WORK`;
+it is not a Rework veto unless the case also has a wrong tier or a
+demonstrated claimed-versus-actual boundary mismatch.
+
+**Output:** Table of required boundaries with status: Planned at required tier
+(not run) / Execution path identified / Passed with result evidence / Wrong
+tier (Rework veto) / Ambiguous tier / Claimed-versus-actual boundary
+mismatch (Rework veto) / Dependency-disclosure gap / Evidence gap / Coverage
+gap / Owner gap / Unverified (source unavailable).
 
 ### Check 2: Requirement Tracing
 
@@ -152,12 +184,19 @@ Review the Gaps section:
 ### Summary
 
 - Requirements covered: X/Y ({Z missing})
-- Required integration boundaries covered at the required tier: X/Y
-- Wrong-tier cases: X; undisclosed real-versus-faked cases: Y
+- Required boundaries with a planned case at the required tier: X/Y
+- Required boundaries with an identified execution path: X/Y
+- Required boundaries with a passing execution and result evidence: X/Y
+- Wrong-tier cases: X; demonstrated boundary mismatches: Y
+- Dependency-disclosure gaps: X
+- Missing planning-evidence fields: X
 - Owner gaps: X
 - Test cases: X total (Y complete, Z shallow, W incomplete)
 - AC coverage: X/Y story ACs mapped
 - Structural issues: X found
+
+The verdict evaluates planning completeness; it does not mean any cases passed.
+Report execution results separately.
 
 ### Requirement Tracing
 
@@ -169,9 +208,9 @@ Review the Gaps section:
 
 ### Integration Boundary Assessment
 
-| Component / behavior | Required tier and boundary | Owner | TC / suite | Real vs. faked | Status |
-|----------------------|----------------------------|-------|------------|----------------|--------|
-| {behavior} | {tier and boundary} | {DEV/QE} | {TC and path} | {dependencies} | {status} |
+| Component / behavior / refs | Required tier and boundary | Owner | TCs / suite | Command or manual procedure / working directory / prerequisites | Real vs. faked | Execution status / evidence | Gap / follow-up | Status |
+|-----------------------------|----------------------------|-------|------------|---------------------------------------------------------------|----------------|----------------------------|---------------|--------|
+| {behavior and requirement refs} | {tier and boundary} | {DEV/QE} | {TCs and path} | {verified/proposed command or manual procedure; applicable cwd; prerequisites} | {dependencies} | {not run/blocked/passed and evidence} | {Jira URL or unresolved} | {status} |
 
 ### Test Case Assessment
 
@@ -198,9 +237,9 @@ Review the Gaps section:
 {PASS: all requirements and required boundaries are covered at the right tier,
 real-versus-faked dependencies are disclosed, no incomplete TCs, and no
 structural issues}
-{NEEDS WORK: list missing requirements, wrong-tier or undisclosed-boundary
-findings, shallow TCs, and structural issues. A Rework veto always prevents
-PASS.}
+{NEEDS WORK: list missing requirements, wrong-tier or demonstrated
+claimed-versus-actual boundary mismatch findings, evidence gaps, shallow TCs,
+and structural issues. A Rework veto always prevents PASS.}
 ```
 
 ## Notes

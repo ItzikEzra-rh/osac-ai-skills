@@ -55,20 +55,45 @@ field value, error type), not a restatement of the acceptance criteria.
 **Is the plan grounded in the actual test codebase and required component
 integration boundaries?**
 
-For every required integration row, check the component's touched-area map and
-the shared planning-evidence guidance. The row must name its tier, documented
-boundary, existing suite/file or clearly proposed location, and which relevant
-dependencies are real versus mocked, stubbed, or omitted. Also check for test
-frameworks, fixtures, helpers, and existing test patterns.
+For every required coverage-matrix row, check the component's touched-area map,
+the relevant `docs/INTEGRATION-TESTING.md` section for tier/command/boundary,
+and the shared planning-evidence guidance. The row must name its tier,
+owning component and `[DEV]`/`[QE]` work owner, touched behavior,
+requirement/interface references, boundary, test-case IDs, existing suite/file
+or clearly proposed location, verified or explicitly proposed command or
+concrete manual procedure, applicable working directory or justified N/A,
+environment prerequisites,
+execution status, and which relevant dependencies are real versus mocked,
+stubbed, or omitted. For unavailable suites or unresolved prerequisites, it
+must link the owning follow-up Jira issue or state that no owner/ticket exists.
+Also check for test frameworks, fixtures, helpers, and existing test patterns.
 
-- 0 = No usable test-codebase grounding, or a required integration case claims
-  coverage through a stub/test double without disclosing that boundary
-- 1 = Names the framework or repository, but at least one required integration
-  row has a missing or ambiguous tier, boundary, suite/location, or
-  real-versus-faked description
-- 2 = Every required integration row names its tier, documented boundary,
-  suite/file or explicitly proposed location, and real-versus-faked dependencies;
-  the plan also points to the relevant test codebase or existing test pattern
+Each coverage row must select one canonical tier. Slash-separated alternatives
+or multiple candidate tiers are ambiguous. A manual case may identify its
+procedure instead of a shell command and explain why a working directory does
+not apply. Supplemental static/build checks may be listed separately as
+non-test validation, but are not a test tier and cannot satisfy a Unit, Envtest,
+component-integration, Contract, or E2E requirement.
+
+- 0 = No usable test-codebase grounding, or a required case presents a
+  stub/test double as evidence for a real boundary that the test does not exercise
+- 1 = Names the framework or repository, but at least one applicable row is
+  missing or ambiguous about its tier, owner, boundary, case IDs, suite/location,
+  command or manual procedure, applicable working directory or justified N/A
+  for a manual case, prerequisites, execution status, real-versus-faked
+  dependencies, or documented gap/follow-up
+- 2 = Every applicable row contains the required planning evidence; existing
+  commands are verified, proposed paths/commands are labelled, manual paths are
+  actionable, gaps have a follow-up or are explicitly unresolved, and the plan
+  points to the relevant test codebase or existing test pattern
+
+`Not run` or `blocked` is a valid status when stated accurately, but is not a
+passing result. A claimed pass without command or manual procedure and observed-result
+evidence is unsubstantiated and must be reported as not passed. Missing required execution
+detail or a required boundary caps the verdict at Revise. Only a wrong-tier
+claim or a demonstrated mismatch between the claimed boundary and described
+real-versus-faked setup triggers the Rework veto. Missing or ambiguous
+dependency disclosure is an evidence gap, not a veto.
 
 If the map requires only Unit or Envtest coverage, do not lower Grounding for
 having no component-integration case. If an integration requirement has no
@@ -102,13 +127,20 @@ and how tests run, not what they test.
 
 **Can an engineer implement the tests from the plan without guessing?**
 
-- 0 = Missing steps, unclear assertions, no implementation path
+- 0 = Missing steps or assertions, or no usable behavioral test scenario
 - 1 = Structure present but some TCs lack specific parameters or assertions
 - 2 = Every TC specifies preconditions, numbered steps with parameters, and concrete expected results
 
 Also verify that each case has an owner consistent with its required tier. A
 missing or mismatched owner is an actionability gap; it does not trigger the
 integration-boundary Rework veto by itself.
+Missing matrix evidence fields are Grounding gaps; do not score Actionability
+0 solely for those omissions.
+Also verify that the implementation path names a suite and verified command or
+a concrete manual procedure, plus an applicable working directory or
+justified N/A for a manual case, environment prerequisites, and honest execution
+status. Mark unverified commands and new
+locations as proposed; do not present them as existing runnable coverage.
 
 **Calibration:**
 - A=0: "Test DiskImage functionality" with no steps or expected results
