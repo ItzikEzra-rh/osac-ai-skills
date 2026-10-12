@@ -2,7 +2,7 @@
 name: osac-feature
 description: Create Feature issues in the OSAC Jira project, or complete empty placeholder Features. Use when the user wants to create a Feature, enhancement, or new capability request for OSAC.
 metadata:
-  version: "0.4.0"
+  version: "0.4.1"
 ---
 
 # OSAC Feature Creation
