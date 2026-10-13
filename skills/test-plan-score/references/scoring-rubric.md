@@ -26,11 +26,13 @@ verdict at **Revise**; a lower-tier case does not fill that gap.
 
 After scoring, return **Rework** regardless of the total if a required
 integration case claims a tier below or different from the affected component's
-touched-area map, or does not disclose which relevant dependencies are real
-and which are mocked, stubbed, or omitted. Name the test-case IDs and cite the
-map or planning-evidence row. A missing case for a required boundary is a
-coverage gap and cannot receive Ready. Do not apply the veto to unrelated
-provider gaps or to changes whose touched-area map requires only a lower tier.
+touched-area map, or describes a real-versus-faked setup that demonstrably does
+not exercise the required boundary. Name the test-case IDs and cite the map or
+planning-evidence row. Missing or ambiguous dependency disclosure is an evidence
+gap: Grounding is at most 1 and the verdict is capped at Revise. A missing case
+for a required boundary is a coverage gap and cannot receive Ready. Do not apply
+the veto to unrelated provider gaps or to changes whose touched-area map
+requires only a lower tier.
 
 ## Dimensions
 

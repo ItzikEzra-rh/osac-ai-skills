@@ -234,12 +234,15 @@ Report execution results separately.
 
 ### Verdict
 
-{PASS: all requirements and required boundaries are covered at the right tier,
-real-versus-faked dependencies are disclosed, no incomplete TCs, and no
-structural issues}
-{NEEDS WORK: list missing requirements, wrong-tier or demonstrated
-claimed-versus-actual boundary mismatch findings, evidence gaps, shallow TCs,
-and structural issues. A Rework veto always prevents PASS.}
+{PASS: all in-scope requirements and required boundaries have traceable cases
+at the right tier or a justified gap with a follow-up; required planning-evidence
+fields, owners, and real-versus-faked dependency disclosures are present; there
+are no uncovered required cases, unaddressed evidence or owner gaps, shallow or
+incomplete TCs, Rework vetoes, or structural issues}
+{NEEDS WORK: list missing requirements or boundaries, wrong-tier or demonstrated
+claimed-versus-actual boundary mismatches, missing planning-evidence fields,
+dependency-disclosure or owner gaps, unjustified or unassigned coverage gaps,
+shallow TCs, and structural issues. A Rework veto always prevents PASS.}
 ```
 
 ## Notes
