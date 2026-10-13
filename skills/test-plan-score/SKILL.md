@@ -1,7 +1,7 @@
 ---
 name: test-plan-score
 metadata:
-  version: "0.3.2"
+  version: "0.3.3"
 description: |
   Score an OSAC test plan against the 5-dimension rubric (Specificity,
   Grounding, Scope Fidelity, Actionability, Consistency). Produces
@@ -311,6 +311,14 @@ Check:
 - **Revise** (5-7): Address gaps, re-score
 - **Rework** (0-4 or any zero): Fundamental issues — zero on any
   dimension is automatic Rework
+
+Calculate the verdict from the final scores, then apply only the explicit
+rubric caps and boundary veto below. A total of 8-10 with no zero is Ready
+unless a stated cap applies. A nonzero Consistency 1 or an improvement
+suggestion alone does not cap that result at Revise. If returning Revise for
+8-10, name the applicable cap, affected case and missing required evidence.
+Return one final score per dimension; numeric scores, notes, total and verdict
+must agree.
 
 ### Integration-boundary Rework veto
 

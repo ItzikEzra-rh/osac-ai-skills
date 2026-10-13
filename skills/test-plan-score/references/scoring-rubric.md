@@ -16,6 +16,12 @@ numbered steps, and concrete expected results.
 - **Revise** (5-7): Address gaps, re-score
 - **Rework** (0-4 or any zero): Fundamental issues
 
+Apply the numeric band first, then the explicit caps/vetoes below. With no
+zero score, 8-10 is Ready unless a stated cap applies. A nonzero Consistency 1
+or an improvement suggestion alone is not a Revise cap. For an 8-10 Revise,
+identify the applicable cap, affected case and missing required evidence.
+The final scores, criterion notes, total and verdict must agree.
+
 When integration coverage is required, Grounding 1 caps the verdict at
 **Revise**; only complete boundary evidence can support **Ready**. If no
 integration case is required, do not penalize the plan for omitting an
