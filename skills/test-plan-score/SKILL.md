@@ -9,8 +9,8 @@ description: |
   Grounding checks per-component integration tier, boundary, suite, and
   real-versus-faked dependencies against OSAC touched-area guidance.
 
-  Trigger when a testplan.md is ready for review, or when the user asks to
-  score or review a test plan.
+  Required on relevant enhancement-proposals PRs that change a test plan,
+  design, or its PRD. Also trigger when the user requests test-plan scoring.
 ---
 
 # OSAC Test Plan Scorer
@@ -343,6 +343,31 @@ Write `verdict.json`:
 
 This matches the org-pulse test plan data schema and the
 PRD/design review verdict format.
+
+## Required CI gate
+
+Enhancement-proposals CI invokes this scorer for every affected plan, including
+an unchanged plan whose PRD or design changed. A new or edited design requires
+a plan. PRD-only work without a design and unrelated changes are not applicable;
+untouched legacy designs are not retroactively required to add a plan.
+
+Only a valid **Ready** verdict permits merge. A high numeric total cannot
+override evidence caps or integration-boundary vetoes in the scoring rubric.
+Keep the five-dimension `verdict.json` contract. Missing required context,
+invalid model output, service errors, and an unscored affected plan block the
+gate; a previous comment or label is not a passing result for the current PR.
+
+The caller publishes one aggregate `Test Plan Score` check on the exact PR
+head SHA and retains each plan's verdict and feedback. All affected plans must
+be Ready. Re-score on PR updates or an authorized `/test-plan-score` retry.
+A `/test-plan-respond` revision requires a fresh score; it cannot pass the gate
+by itself. Completeness review remains diagnostic after Revise or Rework.
+
+Read the authoritative PRD, design, rubric and references plus the trusted
+OSAC checkout's integration guidance, affected component maps and cited test
+sources. The caller records the source commit SHAs. If required evidence is
+unavailable, disclose the gap instead of claiming it was verified. Plan
+readiness does not mean the planned tests have executed successfully.
 
 ## Notes
 
