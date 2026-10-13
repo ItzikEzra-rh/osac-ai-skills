@@ -39,6 +39,15 @@ requires only a lower tier.
 
 ## Dimensions
 
+Grade plan readiness with this rubric. Current component maps/integration
+guidance govern required boundaries. Implementation/release execution quality
+gates in strategy references do not govern this planning verdict. Clearly
+disclosed proposed work is not a claim that the harness already exists.
+Grounding 1 needs a named missing/ambiguous matrix field, omitted required case
+or unsupported existing-source claim. Consistency deductions need an actual
+count, ID, grouping or internal contradiction; consistent local aliases, optional
+audit tables/columns and a valid uniform priority are not such contradictions.
+
 ### 1. Specificity (0-2)
 
 **Does each TC name concrete scenarios with specific inputs and outputs?**

@@ -1,7 +1,7 @@
 ---
 name: test-plan-score
 metadata:
-  version: "0.3.1"
+  version: "0.3.2"
 description: |
   Score an OSAC test plan against the 5-dimension rubric (Specificity,
   Grounding, Scope Fidelity, Actionability, Consistency). Produces
@@ -117,6 +117,20 @@ findings. Do not invent a required tier or count an unverified boundary as
 covered.
 
 ## Scoring Process
+
+Use this skill and its scoring rubric to grade plan readiness. Current OSAC
+component maps and integration guidance determine required boundaries. The
+strategy/reference documents supply examples and implementation/release
+context; their execution quality gates are not plan-scoring prerequisites.
+If an old example conflicts with current component guidance, use the current
+guidance and disclose the discrepancy.
+
+For Grounding 1, identify a missing or ambiguous execution-row field, omitted
+required case, or unsupported existing-source claim. A fully disclosed proposed
+location/helper is not an unsupported existing-source claim. For Consistency 1,
+identify an actual count, ID, grouping or internal contradiction; optional extra
+columns/audit tables, consistent local aliases and a valid uniform priority do
+not alone justify a deduction. Risk-priority advice is not an invented PRD AC.
 
 Score each dimension independently. For each:
 1. Quote specific evidence from the testplan
