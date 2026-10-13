@@ -96,6 +96,13 @@ component-integration, Contract, or E2E requirement.
   actionable, gaps have a follow-up or are explicitly unresolved, and the plan
   points to the relevant test codebase or existing test pattern
 
+This is a planning gate, not an execution gate. A clearly proposed case with
+a complete execution row can receive Grounding 2 before its test code exists.
+Explicitly stating that no person or ticket is assigned satisfies the gap
+disclosure rule; it does not by itself cap readiness. Require a case for each
+required boundary, not proof that the planned case has already passed.
+Do not introduce priority requirements absent from the authoritative sources.
+
 `Not run` or `blocked` is a valid status when stated accurately, but is not a
 passing result. A claimed pass without command or manual procedure and observed-result
 evidence is unsubstantiated and must be reported as not passed. Absent or
@@ -118,7 +125,8 @@ types) is NOT grounding. Grounding means the test infrastructure — where
 and how tests run, not what they test.
 
 **Calibration:**
-- G=0: 32 detailed TCs with specific API calls but zero mention of test framework, test files, or fixtures
+- G=0: A required deployed integration case claims it proves persistence,
+  but its setup replaces the receiving service and database with mocks.
 - G=1: "E2E tests using pytest in osac-test-infra" (names codebase and framework)
 - G=2: "E2E test in `tests/disk_image/test_disk_image_lifecycle.py` using grpc fixture, `GRPCClient.create_disk_image()`, following the pattern in `test_virtual_network_lifecycle.py`"
 
