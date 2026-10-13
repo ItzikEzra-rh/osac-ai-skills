@@ -1,7 +1,7 @@
 ---
 name: test-plan-score
 metadata:
-  version: "0.5.0"
+  version: "0.5.1"
 description: |
   Score an OSAC test plan against the 5-dimension rubric (Specificity,
   Grounding, Scope Fidelity, Actionability, Consistency). Produces
@@ -204,6 +204,13 @@ commands are verified, proposed paths/commands are labelled, manual paths are
 actionable, gaps have a follow-up or are explicitly unresolved, and the plan
 points to the relevant
 test codebase or existing test pattern.
+
+This is a planning gate. New tests need not already exist or have passed. A
+clearly proposed case with a complete execution row can receive Grounding 2.
+An explicitly unresolved owner/ticket satisfies gap disclosure; do not invent
+a requirement for an assigned person or filed issue. A missing required case
+is different from a planned case whose harness still needs implementation.
+Do not infer priority requirements absent from the PRD/design.
 
 `Not run` or `blocked` is a valid execution status when stated accurately; it
 does not count as a passing test. A claimed pass without command or manual procedure and observed-result
