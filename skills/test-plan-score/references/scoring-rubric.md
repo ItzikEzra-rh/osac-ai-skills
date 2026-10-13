@@ -12,6 +12,11 @@ numbered steps, and concrete expected results.
 
 ## Verdicts
 
+For the skill's explicit CI assessment mode, assess scores and evidence-backed
+policy facts. The trusted gate derives the final verdict using these bands and
+all caps/vetoes. It preserves the public verdict format. The model does not
+supply the authoritative final verdict in that mode.
+
 - **Ready** (8-10): Test plan is implementation-ready
 - **Revise** (5-7): Address gaps, re-score
 - **Rework** (0-4 or any zero): Fundamental issues

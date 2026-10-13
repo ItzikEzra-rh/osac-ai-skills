@@ -1,7 +1,7 @@
 ---
 name: test-plan-score
 metadata:
-  version: "0.5.3"
+  version: "0.5.4"
 description: |
   Score an OSAC test plan against the 5-dimension rubric (Specificity,
   Grounding, Scope Fidelity, Actionability, Consistency). Produces
@@ -309,6 +309,16 @@ Check:
 **2** = All sections align, IDs sequential, counts accurate
 
 ## Verdict
+
+### CI assessment mode
+
+Trusted CI callers select the internal contract in
+[CI assessment mode](references/ci-assessment.md). Return scores, evidence and
+explicit policy facts; trusted code emits the public verdict. Standalone
+scoring uses the output format below. Preserve every rubric cap and veto in
+both modes.
+
+### Public verdict rules
 
 - **Ready** (8-10): Test plan is implementation-ready
 - **Revise** (5-7): Address gaps, re-score
