@@ -1,7 +1,7 @@
 ---
 name: test-plan-score
 metadata:
-  version: "0.2.0"
+  version: "0.3.0"
 description: |
   Score an OSAC test plan against the 5-dimension rubric (Specificity,
   Grounding, Scope Fidelity, Actionability, Consistency). Produces
@@ -188,13 +188,16 @@ shell command and state why a working directory does not apply. Static/build
 checks may be listed separately as supplemental non-test validation; they do
 not satisfy any test-tier requirement.
 
-**0** = No usable test-codebase grounding, or a required case presents a
-stub/test double as evidence for a real boundary that the test does not exercise.
-**1** = Names the framework or repository, but at least one applicable row is
-missing or ambiguous about its tier, boundary, owner, case IDs, suite/location,
-command or manual procedure, applicable working directory or justified N/A for
-a manual case, prerequisites, execution status, real-versus-faked dependencies,
-or documented gap/follow-up.
+**0** = A required case has a demonstrated tier or boundary mismatch: it
+claims a tier that conflicts with the touched-area map, or claims a real/deployed
+boundary while its described setup demonstrably fakes or omits a required
+component.
+**1** = Test-codebase grounding is absent or incomplete without a demonstrated
+boundary mismatch, or at least one applicable row is missing or ambiguous about
+its tier, boundary, owner, case IDs, suite/location, command or manual procedure,
+applicable working directory or justified N/A for a manual case, prerequisites,
+execution status, real-versus-faked dependencies, or documented gap/follow-up.
+No usable test-codebase grounding by itself is an evidence gap: score 1, not 0.
 **2** = Every applicable row contains the required planning evidence; existing
 commands are verified, proposed paths/commands are labelled, manual paths are
 actionable, gaps have a follow-up or are explicitly unresolved, and the plan
@@ -203,11 +206,13 @@ test codebase or existing test pattern.
 
 `Not run` or `blocked` is a valid execution status when stated accurately; it
 does not count as a passing test. A claimed pass without command or manual procedure and observed-result
-evidence is unsubstantiated and must be reported as not passed. Missing execution
-detail or a missing required boundary caps the verdict at Revise. Only a
-wrong-tier claim or demonstrated mismatch between the claimed boundary and
-described real-versus-faked setup triggers the Rework veto.
-Missing or ambiguous dependency disclosure is an evidence gap, not a veto.
+evidence is unsubstantiated and must be reported as not passed. Absent or
+incomplete test-codebase grounding without a demonstrated mismatch, missing
+execution detail, or a missing required boundary caps the verdict at Revise.
+These are evidence gaps, not Rework triggers. Only a wrong-tier claim or
+demonstrated mismatch between the claimed boundary and described real-versus-
+faked setup triggers the Rework veto. Missing or ambiguous dependency disclosure
+is an evidence gap, not a veto.
 
 If the touched-area map says the change needs only Unit or Envtest coverage,
 do not lower Grounding just because the plan has no component-integration case.
@@ -216,7 +221,9 @@ gap; do not count a lower-tier case as satisfying it. A missing required
 boundary caps the verdict at Revise, unless another rule yields Rework.
 When integration coverage is required, Grounding 1 caps the verdict at Revise;
 only complete boundary evidence can support Ready. If no integration case is
-required, use the existing Grounding criteria without this cap.
+required, do not penalize the plan for omitting an integration row; absent or
+unusable test-codebase grounding without a demonstrated mismatch still caps the
+verdict at Revise.
 
 Note: referencing production code (proto fields, API methods) is NOT
 grounding. Grounding means the test codebase, not the production codebase.

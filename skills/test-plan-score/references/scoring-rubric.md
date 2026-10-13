@@ -18,9 +18,12 @@ numbered steps, and concrete expected results.
 
 When integration coverage is required, Grounding 1 caps the verdict at
 **Revise**; only complete boundary evidence can support **Ready**. If no
-integration case is required, this cap does not apply.
+integration case is required, do not penalize the plan for omitting an
+integration row. However, absent or unusable test-codebase grounding without a
+demonstrated mismatch still caps the verdict at **Revise**.
 If a required integration boundary has no case, report the gap and cap the
-verdict at **Revise**; a lower-tier case does not fill that gap.
+verdict at **Revise**; a lower-tier case does not fill that gap. A follow-up
+ticket records ownership but does not satisfy the boundary or permit **Ready**.
 
 ### Integration-boundary Rework veto
 
@@ -77,13 +80,17 @@ not apply. Supplemental static/build checks may be listed separately as
 non-test validation, but are not a test tier and cannot satisfy a Unit, Envtest,
 component-integration, Contract, or E2E requirement.
 
-- 0 = No usable test-codebase grounding, or a required case presents a
-  stub/test double as evidence for a real boundary that the test does not exercise
-- 1 = Names the framework or repository, but at least one applicable row is
-  missing or ambiguous about its tier, owner, boundary, case IDs, suite/location,
-  command or manual procedure, applicable working directory or justified N/A
-  for a manual case, prerequisites, execution status, real-versus-faked
-  dependencies, or documented gap/follow-up
+- 0 = A required case has a demonstrated tier or boundary mismatch: it claims
+  a tier that conflicts with the touched-area map, or claims a real/deployed
+  boundary while its described setup demonstrably fakes or omits a required
+  component
+- 1 = Test-codebase grounding is absent or incomplete without a demonstrated
+  boundary mismatch, or at least one applicable row is missing or ambiguous
+  about its tier, owner, boundary, case IDs, suite/location, command or manual
+  procedure, applicable working directory or justified N/A for a manual case,
+  prerequisites, execution status, real-versus-faked dependencies, or
+  documented gap/follow-up. No usable test-codebase grounding by itself is an
+  evidence gap: score 1, not 0.
 - 2 = Every applicable row contains the required planning evidence; existing
   commands are verified, proposed paths/commands are labelled, manual paths are
   actionable, gaps have a follow-up or are explicitly unresolved, and the plan
@@ -91,16 +98,20 @@ component-integration, Contract, or E2E requirement.
 
 `Not run` or `blocked` is a valid status when stated accurately, but is not a
 passing result. A claimed pass without command or manual procedure and observed-result
-evidence is unsubstantiated and must be reported as not passed. Missing required execution
-detail or a required boundary caps the verdict at Revise. Only a wrong-tier
-claim or a demonstrated mismatch between the claimed boundary and described
+evidence is unsubstantiated and must be reported as not passed. Absent or
+incomplete test-codebase grounding without a demonstrated mismatch, missing
+required execution detail, or a missing required boundary caps the verdict at
+Revise. These are evidence gaps, not Rework triggers. Only a wrong-tier claim
+or a demonstrated mismatch between the claimed boundary and described
 real-versus-faked setup triggers the Rework veto. Missing or ambiguous
 dependency disclosure is an evidence gap, not a veto.
 
 If the map requires only Unit or Envtest coverage, do not lower Grounding for
 having no component-integration case. If an integration requirement has no
 case, report a coverage gap, cap the verdict at Revise, and do not count a
-lower tier as satisfying it.
+lower tier as satisfying it. If no integration case is required, absent or
+unusable test-codebase grounding without a demonstrated mismatch still caps
+the verdict at Revise.
 
 **Important:** Referencing production code (proto fields, API methods, error
 types) is NOT grounding. Grounding means the test infrastructure — where

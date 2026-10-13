@@ -1,7 +1,7 @@
 ---
 name: test-plan-review
 metadata:
-  version: "0.2.0"
+  version: "0.3.0"
 description: |
   Completeness reviewer for OSAC testplans. Checks requirement
   coverage, test case depth, structural consistency, and gap analysis.
@@ -96,7 +96,8 @@ For each affected component and touched behavior:
   component-integration, Contract, or E2E boundary; a component-integration
   case does not satisfy a required deployed E2E boundary.
 - Treat a missing case for a required boundary as a coverage gap. Do not count
-  a lower-tier case as coverage for it.
+  a lower-tier case as coverage for it. A follow-up ticket records ownership of
+  the gap; it does not satisfy the boundary or permit PASS.
 
 **Hard failure:** If a required case claims the wrong tier for its
 documented boundary, or claims a required real/deployed boundary while its
@@ -234,15 +235,17 @@ Report execution results separately.
 
 ### Verdict
 
-{PASS: all in-scope requirements and required boundaries have traceable cases
-at the right tier or a justified gap with a follow-up; required planning-evidence
-fields, owners, and real-versus-faked dependency disclosures are present; there
-are no uncovered required cases, unaddressed evidence or owner gaps, shallow or
-incomplete TCs, Rework vetoes, or structural issues}
-{NEEDS WORK: list missing requirements or boundaries, wrong-tier or demonstrated
-claimed-versus-actual boundary mismatches, missing planning-evidence fields,
-dependency-disclosure or owner gaps, unjustified or unassigned coverage gaps,
-shallow TCs, and structural issues. A Rework veto always prevents PASS.}
+{PASS: all in-scope requirements have traceable cases or a justified gap with a
+follow-up; every required boundary has a traceable case at the required tier;
+required planning-evidence fields, owners, and real-versus-faked dependency
+disclosures are present; there are no unaddressed evidence or owner gaps,
+shallow or incomplete TCs, Rework vetoes, or structural issues. A justified gap
+or follow-up ticket does not qualify a missing required boundary for PASS.}
+{NEEDS WORK: list missing requirements or boundaries, including justified
+required-boundary gaps, wrong-tier or demonstrated claimed-versus-actual
+boundary mismatches, missing planning-evidence fields, dependency-disclosure or
+owner gaps, unjustified or unassigned coverage gaps, shallow TCs, and structural
+issues. A Rework veto always prevents PASS.}
 ```
 
 ## Notes
@@ -250,7 +253,9 @@ shallow TCs, and structural issues. A Rework veto always prevents PASS.}
 - This is a FOCUSED reviewer. Don't expand scope to design quality.
 - Missing requirements are worse than shallow TCs. Flag missing first.
 - The Gaps section is a positive signal — honest gap documentation
-  with justification is acceptable. Silent omissions are not.
+  with justification is acceptable. A gap for a required boundary still means
+  NEEDS WORK until a case at the required tier exists; a follow-up ticket does
+  not count as coverage. Silent omissions are not.
 - A testplan with a Summary table but no detailed TCs is automatic NEEDS WORK.
 
 $ARGUMENTS
