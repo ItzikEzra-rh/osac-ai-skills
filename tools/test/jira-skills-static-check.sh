@@ -240,7 +240,8 @@ test_osac_feature_takeover_and_derive() {
 
 test_report_bug_requires_component() {
   local skill="${ROOT}/skills/report-bug/SKILL.md"
-  rg -q '\-\-component "\$\{COMPONENT\}"' "$skill" \
+  awk '/^## Create the Bug$/{s=1;next} s&&/^## /{exit} s{print}' "$skill" \
+    | rg -q '\-\-component "\$\{COMPONENT\}"' \
     || fail "report-bug: jira issue create must include --component \"\${COMPONENT}\""
   awk '/^## Confirm Before Creating$/{s=1;next} s&&/^## /{exit} s{print}' "$skill" \
     | rg -q 'Component:' \
