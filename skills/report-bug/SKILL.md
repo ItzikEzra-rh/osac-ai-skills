@@ -2,7 +2,7 @@
 name: report-bug
 description: Report a bug in Jira without fixing it — creates a Bug ticket with proper description, links it to an epic, and assigns it. Use when the user says 'report a bug', 'file a bug', 'log a bug', 'open a bug ticket', or wants to track a bug without immediately writing a fix.
 metadata:
-  version: "0.1.6"
+  version: "0.2.0"
 ---
 
 # Report Bug
@@ -24,6 +24,7 @@ Collect from conversation context. Ask only if truly ambiguous:
 | Bug summary | Yes | From conversation context |
 | User-visible symptoms | Yes | From conversation context |
 | Steps to reproduce | If known | From conversation context |
+| Component | Yes | Infer from context. List options from `list_component_suggestions`. Ask if ambiguous |
 | Epic key | If ambiguous | Ask user — e.g. "Which epic should I link this to?" |
 | Affects version | No | Suggest from parent Feature's fixVersion (planning hint); user confirms where the bug was found |
 | Attachments | No | Logs, screenshots, or config files from conversation context |
@@ -73,6 +74,23 @@ Resolve a **suggested** affects-version before the confirm gate. Never pass
 Store the resolved value in `AFFECTS_VERSION` (empty when skipped) and
 `AFFECTS_VERSION_SOURCE` (`feature`, `release-list`, `user`, or `none`).
 
+## Resolve Component
+
+Resolve a component before the confirm gate. Component is required — do not
+create the bug without one.
+
+1. Infer from conversation context (bug description, affected subsystem,
+   related epic's component)
+2. Run `list_component_suggestions` to fetch the current OSAC component set
+   and present the options: "Component? Options: <list>"
+3. If the user picks a value from the list, store it in `COMPONENT`
+4. If the user names a value not in the list, pass it through — Jira
+   validates at create time and rejects unknown components with a clear error
+5. If the user declines or gives an empty answer, ask again — Component has
+   no default or skip option
+
+Store the resolved value in `COMPONENT` (never empty).
+
 ## Reusable bash patterns
 
 Requires **bash or zsh** on macOS or Linux. Portable constructs only.
@@ -117,6 +135,58 @@ suggest_affects_version_from_parent() {
   jira issue view "$feature_key" --raw 2>/dev/null \
     | jq -r '.fields.fixVersions[0].name // empty'
 }
+
+# Fetch OSAC project components from Jira REST API. Returns one component
+# name per line, sorted. Falls back to a hardcoded list when the API call
+# fails (network, auth, missing credentials). The fallback list must be
+# kept in sync with the OSAC Jira project — last updated 2026-10-14.
+# Excludes anomalous numeric-only values (e.g. Jira internal IDs).
+list_component_suggestions() {
+  local login token out err
+  login=$(jira_login 2>/dev/null) || true
+  token=$(jira_token 2>/dev/null) || true
+  if [ -n "$login" ] && [ -n "$token" ]; then
+    out=$(new_temp osac-jira-comp-out)
+    add_temp "$out"
+    err=$(new_temp osac-jira-comp-err)
+    add_temp "$err"
+    if curl -s --fail-with-body --max-time 15 -K - \
+      "https://redhat.atlassian.net/rest/api/3/project/OSAC/components" \
+      >"$out" 2>"$err" <<EOF
+user = "${login}:${token}"
+EOF
+    then
+      local names
+      names=$(jq -r '[.[].name // empty | select(test("^[0-9]+$") | not)] | sort[]' "$out")
+      if [ -n "$names" ]; then
+        printf '%s\n' "$names"
+        return 0
+      fi
+    fi
+  fi
+  # Hardcoded fallback — keep in sync with the OSAC Jira project.
+  # Last updated: 2026-10-14
+  cat <<'FALLBACK'
+BMaaS
+CaaS
+Connectivity&Fabric
+Core
+Docs
+Enclave
+Enclave Wizard
+ICE
+Infrastructure
+MaaS
+Metering, Billing and Quota
+Observability
+Quality
+Security
+Storage
+UI
+VMaaS
+agentic-sdlc
+FALLBACK
+}
 ```
 
 ## Confirm Before Creating
@@ -131,6 +201,7 @@ Ready to report bug in Jira:
   <full drafted ticket body>
 
   Summary:         <bug summary>
+  Component:       <COMPONENT>
   Epic:            <EPIC-KEY or none>
   Affects version: <version or not set> [<feature|release-list|user|none>]
   Assignee:        <name or unassigned>
@@ -207,6 +278,7 @@ AFFECTS_VERSION_ARGS=()
 jira issue create -t Bug --project OSAC \
   --summary "<concise bug title>" \
   --template "$BODY" \
+  --component "${COMPONENT}" \
   "${AFFECTS_VERSION_ARGS[@]}" \
   --no-input --raw >"$OUT" 2>"$ERR" </dev/null
 
@@ -281,6 +353,7 @@ Output to user:
 Bug reported:
 
 Jira:              https://redhat.atlassian.net/browse/<KEY>
+Component:         <COMPONENT>
 Epic:              <EPIC-KEY>
 Affects version:   <version or "not set">
 Version source:    <feature | release-list | user | none>
