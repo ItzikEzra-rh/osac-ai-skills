@@ -242,10 +242,15 @@ test_report_bug_requires_component() {
   local skill="${ROOT}/skills/report-bug/SKILL.md"
   rg -q '\-\-component "\$\{COMPONENT\}"' "$skill" \
     || fail "report-bug: jira issue create must include --component \"\${COMPONENT}\""
-  rg -q 'Component:' "$skill" \
-    || fail "report-bug: confirm gate and report must show Component"
-  rg -q 'list_component_suggestions' "$skill" \
-    || fail "report-bug: must use list_component_suggestions to fetch component options"
+  awk '/^## Confirm Before Creating$/{s=1;next} s&&/^## /{exit} s{print}' "$skill" \
+    | rg -q 'Component:' \
+    || fail "report-bug: confirm gate must show Component"
+  awk '/^## Report$/{s=1;next} s&&/^## /{exit} s{print}' "$skill" \
+    | rg -q 'Component:' \
+    || fail "report-bug: final report must show Component"
+  awk '/^## Resolve Component$/{s=1;next} s&&/^## /{exit} s{print}' "$skill" \
+    | rg -q 'list_component_suggestions' \
+    || fail "report-bug: Resolve Component must call list_component_suggestions"
   pass "report-bug: component is required"
 }
 
