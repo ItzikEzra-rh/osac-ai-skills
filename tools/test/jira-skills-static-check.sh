@@ -238,12 +238,30 @@ test_osac_feature_takeover_and_derive() {
   pass "osac-feature: same-summary duplicate check before confirm"
 }
 
+test_report_bug_requires_component() {
+  local skill="${ROOT}/skills/report-bug/SKILL.md"
+  awk '/^## Create the Bug$/{s=1;next} s&&/^## /{exit} s{print}' "$skill" \
+    | rg -q '\-\-component "\$\{COMPONENT\}"' \
+    || fail "report-bug: jira issue create must include --component \"\${COMPONENT}\""
+  awk '/^## Confirm Before Creating$/{s=1;next} s&&/^## /{exit} s{print}' "$skill" \
+    | rg -q 'Component:' \
+    || fail "report-bug: confirm gate must show Component"
+  awk '/^## Report$/{s=1;next} s&&/^## /{exit} s{print}' "$skill" \
+    | rg -q 'Component:' \
+    || fail "report-bug: final report must show Component"
+  awk '/^## Resolve Component$/{s=1;next} s&&/^## /{exit} s{print}' "$skill" \
+    | rg -q 'list_component_suggestions' \
+    || fail "report-bug: Resolve Component must call list_component_suggestions"
+  pass "report-bug: component is required"
+}
+
 test_skills_reference_shared_script
 test_jira_safe_create_lookup_not_duplicated
 test_no_fixed_tmp_paths
 test_no_inline_create_in_examples
 test_osac_feature_no_duplicate_helpers
 test_osac_feature_takeover_and_derive
+test_report_bug_requires_component
 
 echo ""
 echo "All jira skill static checks passed."
