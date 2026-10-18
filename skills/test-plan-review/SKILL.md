@@ -1,7 +1,7 @@
 ---
 name: test-plan-review
 metadata:
-  version: "0.3.0"
+  version: "0.4.0"
 description: |
   Completeness reviewer for OSAC testplans. Checks requirement
   coverage, test case depth, structural consistency, and gap analysis.
@@ -101,7 +101,8 @@ For each affected component and touched behavior:
 
 **Hard failure:** If a required case claims the wrong tier for its
 documented boundary, or claims a required real/deployed boundary while its
-described setup substitutes a mock/stub or omits a required component, mark the
+described setup substitutes a mock/stub or omits a required component, or a
+required integration case leaves real-versus-faked dependencies undisclosed, mark the
 review `NEEDS WORK` and label the finding `Rework veto`. Cite the test
 case and the map or planning-evidence row. Do not apply this failure to a
 documented gap for unrelated behavior or when the map requires only a lower
@@ -109,8 +110,10 @@ tier.
 
 Missing command or manual procedure, applicable working directory (or a
 justified N/A for a manual case), prerequisite, execution status, follow-up
-information, ambiguous tier, or missing/ambiguous dependency disclosure is an
-evidence gap, not a Rework veto. Mark the affected row incomplete and the plan `NEEDS WORK`; do not count
+information, ambiguous tier, or ambiguous but present dependency disclosure is an
+evidence gap, not a Rework veto. Absent disclosure for required integration
+uses the hard failure above. Mark the affected row incomplete and the plan
+`NEEDS WORK`; do not count
 it as an identified runnable path or passed coverage.
 
 Report a missing or mismatched owner as an ownership gap and mark `NEEDS WORK`;

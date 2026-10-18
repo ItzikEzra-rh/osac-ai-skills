@@ -30,9 +30,10 @@ ticket records ownership but does not satisfy the boundary or permit **Ready**.
 After scoring, return **Rework** regardless of the total if a required
 integration case claims a tier below or different from the affected component's
 touched-area map, or describes a real-versus-faked setup that demonstrably does
-not exercise the required boundary. Name the test-case IDs and cite the map or
-planning-evidence row. Missing or ambiguous dependency disclosure is an evidence
-gap: Grounding is at most 1 and the verdict is capped at Revise. A missing case
+not exercise the required boundary, or leaves real-versus-faked dependencies
+undisclosed. Name the test-case IDs and cite the map or planning-evidence row.
+Absent disclosure invokes the Rework veto; ambiguous but present disclosure is
+a Grounding 1 evidence gap capped at Revise. A missing case
 for a required boundary is a coverage gap and cannot receive Ready. Do not apply
 the veto to unrelated provider gaps or to changes whose touched-area map
 requires only a lower tier.
@@ -83,7 +84,8 @@ component-integration, Contract, or E2E requirement.
 - 0 = A required case has a demonstrated tier or boundary mismatch: it claims
   a tier that conflicts with the touched-area map, or claims a real/deployed
   boundary while its described setup demonstrably fakes or omits a required
-  component
+  component, or a required integration case is stub-only and leaves real-versus-
+  faked dependencies undisclosed
 - 1 = Test-codebase grounding is absent or incomplete without a demonstrated
   boundary mismatch, or at least one applicable row is missing or ambiguous
   about its tier, owner, boundary, case IDs, suite/location, command or manual
@@ -101,10 +103,12 @@ passing result. A claimed pass without command or manual procedure and observed-
 evidence is unsubstantiated and must be reported as not passed. Absent or
 incomplete test-codebase grounding without a demonstrated mismatch, missing
 required execution detail, or a missing required boundary caps the verdict at
-Revise. These are evidence gaps, not Rework triggers. Only a wrong-tier claim
-or a demonstrated mismatch between the claimed boundary and described
-real-versus-faked setup triggers the Rework veto. Missing or ambiguous
-dependency disclosure is an evidence gap, not a veto.
+Revise. These are evidence gaps, not Rework triggers. A wrong-tier claim, a
+demonstrated mismatch between claimed and actual dependency boundaries, or a
+required integration case leaving real-versus-faked dependencies undisclosed
+triggers the Rework veto. Stub-only required integration with undisclosed
+dependencies scores Grounding 0. Ambiguous but present disclosure scores 1;
+absent disclosure invokes the veto.
 
 If the map requires only Unit or Envtest coverage, do not lower Grounding for
 having no component-integration case. If an integration requirement has no
@@ -118,7 +122,12 @@ types) is NOT grounding. Grounding means the test infrastructure — where
 and how tests run, not what they test.
 
 **Calibration:**
-- G=0: 32 detailed TCs with specific API calls but zero mention of test framework, test files, or fixtures
+- G=0: A required integration case exercises only a stub and leaves real-versus-
+  faked dependencies undisclosed.
+- G=0: A required deployed integration case claims it proves persistence,
+  but its setup replaces the receiving service and database with mocks.
+- G=1: No usable test-codebase grounding is provided, with no demonstrated
+  boundary mismatch or undisclosed required-integration dependencies.
 - G=1: "E2E tests using pytest in osac-test-infra" (names codebase and framework)
 - G=2: "E2E test in `tests/disk_image/test_disk_image_lifecycle.py` using grpc fixture, `GRPCClient.create_disk_image()`, following the pattern in `test_virtual_network_lifecycle.py`"
 
@@ -157,7 +166,8 @@ locations as proposed; do not present them as existing runnable coverage.
 
 **Calibration:**
 - A=0: "Test DiskImage functionality" with no steps or expected results
-- A=1: TCs have steps and results but no fixture references or pointers to similar existing tests
+- A=1: TCs have steps and results but omit concrete request parameters or
+  independently observable assertions
 - A=2: "Preconditions: Authenticated as Cloud Provider Admin, fulfillment-service running. Steps: 1) Call DiskImages/Create with source_type=REGISTRY... Expected: Response status 200 OK, DiskImage with non-empty id. Reference: follow pattern in test_virtual_network_lifecycle.py"
 
 ### 5. Consistency (0-2)

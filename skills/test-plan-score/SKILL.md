@@ -1,7 +1,7 @@
 ---
 name: test-plan-score
 metadata:
-  version: "0.3.0"
+  version: "0.4.0"
 description: |
   Score an OSAC test plan against the 5-dimension rubric (Specificity,
   Grounding, Scope Fidelity, Actionability, Consistency). Produces
@@ -191,7 +191,8 @@ not satisfy any test-tier requirement.
 **0** = A required case has a demonstrated tier or boundary mismatch: it
 claims a tier that conflicts with the touched-area map, or claims a real/deployed
 boundary while its described setup demonstrably fakes or omits a required
-component.
+component, or a required integration case is stub-only and leaves real-versus-
+faked dependencies undisclosed.
 **1** = Test-codebase grounding is absent or incomplete without a demonstrated
 boundary mismatch, or at least one applicable row is missing or ambiguous about
 its tier, boundary, owner, case IDs, suite/location, command or manual procedure,
@@ -209,10 +210,12 @@ does not count as a passing test. A claimed pass without command or manual proce
 evidence is unsubstantiated and must be reported as not passed. Absent or
 incomplete test-codebase grounding without a demonstrated mismatch, missing
 execution detail, or a missing required boundary caps the verdict at Revise.
-These are evidence gaps, not Rework triggers. Only a wrong-tier claim or
-demonstrated mismatch between the claimed boundary and described real-versus-
-faked setup triggers the Rework veto. Missing or ambiguous dependency disclosure
-is an evidence gap, not a veto.
+These are evidence gaps, not Rework triggers. A wrong-tier claim, a demonstrated
+mismatch between claimed and actual dependency boundaries, or a required
+integration case leaving real-versus-faked dependencies undisclosed triggers
+the Rework veto. Stub-only required integration with undisclosed dependencies
+scores Grounding 0. Ambiguous but present dependency disclosure scores 1;
+it is distinct from absent disclosure, which invokes the veto.
 
 If the touched-area map says the change needs only Unit or Envtest coverage,
 do not lower Grounding just because the plan has no component-integration case.
@@ -299,11 +302,12 @@ regardless of total when a required integration case:
 - claims a tier below or different from the boundary required by the affected
   component's touched-area map; or
 - claims a required real or deployed boundary while the described test
-  setup substitutes a mock/stub or omits a component that boundary requires.
+  setup substitutes a mock/stub or omits a component that boundary requires; or
+- leaves real-versus-faked dependencies undisclosed.
 
 Name the affected test-case IDs and cite the map or planning-evidence row that
-establishes the required boundary. Missing or ambiguous dependency
-disclosure is an evidence gap, not the Rework veto. An absent case for a
+establishes the required boundary. Absent dependency disclosure invokes this
+veto; ambiguous but present disclosure is a Grounding 1 evidence gap. An absent case for a
 required boundary caps the verdict at Revise; it is not the veto.
 Do not apply the veto to unrelated provider gaps or to changes whose
 touched-area map requires only a lower tier. Keep the existing `verdict.json`
