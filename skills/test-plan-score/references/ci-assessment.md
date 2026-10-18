@@ -20,7 +20,12 @@ and writes the existing public `verdict.json` contract. Standalone scoring uses 
 
 Allowed cap codes are `boundary_mismatch` for a demonstrated required-tier or
 real-versus-faked mismatch, `missing_required_case` for an absent required
-boundary case, and `unusable_grounding` for absent/unusable test-source grounding.
+boundary case, `unusable_grounding` for absent/unusable test-source grounding,
+and `undisclosed_dependencies` when a required integration case leaves
+real-versus-faked dependencies undisclosed. The latter is a Rework veto even
+at a high total; score Grounding 0 when that case is also stub-only. Cite the
+case and the source obligation, and identify the absent dependency disclosure.
+Ambiguous but present disclosure is a Grounding 1 gap, not this veto.
 If groundingUsable is false, supply the unusable_grounding cap with evidence.
 Missing or ambiguous required-integration execution fields get Grounding 1;
 integrationRequired then makes the trusted gate cap readiness at Revise.
