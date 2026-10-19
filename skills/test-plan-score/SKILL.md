@@ -1,7 +1,7 @@
 ---
 name: test-plan-score
 metadata:
-  version: "0.4.0"
+  version: "0.5.0"
 description: |
   Score an OSAC test plan against the 5-dimension rubric (Specificity,
   Grounding, Scope Fidelity, Actionability, Consistency). Produces
@@ -352,7 +352,8 @@ PRD/design review verdict format.
 
 - Score what's in the testplan, not what you think should be there
 - Grounding is about test infrastructure, not production code
-- A plan with strong specificity but zero grounding is still Rework
+- A demonstrated Grounding mismatch scores 0 and triggers Rework. No usable
+  test-codebase grounding by itself scores 1 and caps the verdict at Revise.
 - The Gaps section is a positive signal — honest gap reporting is
   better than silent omission
 

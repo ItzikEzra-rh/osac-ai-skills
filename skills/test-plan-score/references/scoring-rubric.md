@@ -122,14 +122,30 @@ types) is NOT grounding. Grounding means the test infrastructure — where
 and how tests run, not what they test.
 
 **Calibration:**
-- G=0: A required integration case exercises only a stub and leaves real-versus-
-  faked dependencies undisclosed.
+- G=0: A required integration case is shown to use only a stub and leaves
+  real-versus-faked dependencies undisclosed; this is a demonstrated boundary
+  mismatch and triggers Rework.
 - G=0: A required deployed integration case claims it proves persistence,
-  but its setup replaces the receiving service and database with mocks.
-- G=1: No usable test-codebase grounding is provided, with no demonstrated
-  boundary mismatch or undisclosed required-integration dependencies.
+  but its setup replaces the receiving service and database with mocks; this
+  is a demonstrated boundary mismatch.
+- G=1: No usable test-codebase grounding is provided (for example, detailed
+  API calls with no test-framework, file, fixture, or helper references), and
+  no required-boundary mismatch or undisclosed required-integration dependency
+  is demonstrated.
 - G=1: "E2E tests using pytest in osac-test-infra" (names codebase and framework)
-- G=2: "E2E test in `tests/disk_image/test_disk_image_lifecycle.py` using grpc fixture, `GRPCClient.create_disk_image()`, following the pattern in `test_virtual_network_lifecycle.py`"
+- G=2: Every applicable row contains the required planning evidence. For
+  example:
+  ```text
+  TC-<ID> | owner: <[DEV]/[QE] owner> | tier/boundary: <one canonical tier
+  and required boundary from the touched-area map> | behavior/requirement/
+  interface refs: <references> | suite/location: <existing file or clearly
+  proposed path> | command/procedure: <verified or explicitly proposed command,
+  or concrete manual steps> | working directory: <path or justified N/A> |
+  prerequisites: <environment prerequisites> | status: <execution status> |
+  dependencies: <named dependencies marked real/mocked/stubbed/omitted, matching
+  the required boundary> | gap/follow-up: <owning Jira URL or no owner/ticket> |
+  grounding refs: <test framework, fixture/helper, and existing test pattern>
+  ```
 
 ### 3. Scope Fidelity (0-2)
 
@@ -168,7 +184,13 @@ locations as proposed; do not present them as existing runnable coverage.
 - A=0: "Test DiskImage functionality" with no steps or expected results
 - A=1: TCs have steps and results but omit concrete request parameters or
   independently observable assertions
-- A=2: "Preconditions: Authenticated as Cloud Provider Admin, fulfillment-service running. Steps: 1) Call DiskImages/Create with source_type=REGISTRY... Expected: Response status 200 OK, DiskImage with non-empty id. Reference: follow pattern in test_virtual_network_lifecycle.py"
+- A=2: "Preconditions: Authenticated as Cloud Provider Admin,
+  fulfillment-service running. Steps: 1) Call DiskImages/Create with
+  source_type=REGISTRY... Expected: Response status 200 OK, DiskImage
+  with non-empty id"
+
+Fixture, framework, file, and existing-test references are Grounding
+evidence. Their absence does not lower Actionability.
 
 ### 5. Consistency (0-2)
 

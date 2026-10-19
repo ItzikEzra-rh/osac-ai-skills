@@ -1,10 +1,12 @@
 ---
 name: test-plan-review
 metadata:
-  version: "0.4.0"
+  version: "0.5.0"
 description: |
   Completeness reviewer for OSAC testplans. Checks requirement
   coverage, test case depth, structural consistency, and gap analysis.
+  Missing dependency disclosure for a required integration case is a Rework
+  veto; ambiguous but present disclosure is an evidence gap.
   Run after scoring flags issues, or before publishing a testplan.
 
   Trigger when user says "review test plan", "check test completeness",
