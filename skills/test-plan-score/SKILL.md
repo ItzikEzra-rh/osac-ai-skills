@@ -1,7 +1,7 @@
 ---
 name: test-plan-score
 metadata:
-  version: "0.5.4"
+  version: "0.7.0"
 description: |
   Score an OSAC test plan against the 5-dimension rubric (Specificity,
   Grounding, Scope Fidelity, Actionability, Consistency). Produces
@@ -64,7 +64,15 @@ The input testplan follows this structure:
 
 For OSAC changes, use the per-component coverage matrix required by the shared
 planning guidance to connect each behavior to its tier, boundary, owner, suite,
-and execution evidence. If the matrix is absent, compare the test cases with the
+and execution evidence. The shared `docs/INTEGRATION-TESTING.md` establishes
+canonical tiers, common planning-evidence and ownership requirements, and the
+rule that lower tiers do not satisfy higher-tier boundaries; each affected
+component's touched-area map identifies the tiers and boundaries required for
+its changed behavior. Preserve explicit boundary requirements in the approved
+PRD/design as well. Apply these sources together; the shared guide does not
+replace the map, and the map does not replace shared requirements. A matrix
+requirement or the shared guide's tier definitions alone do not require an
+integration-tier case. If the matrix is absent, compare the test cases with the
 touched-area maps and report the missing evidence. Do not treat a test case as
 proof of a boundary unless its documented tier and dependencies actually
 exercise that boundary. Each row must identify the owning component, touched
@@ -118,12 +126,16 @@ covered.
 
 ## Scoring Process
 
-Use this skill and its scoring rubric to grade plan readiness. Current OSAC
-component maps and integration guidance determine required boundaries. The
-strategy/reference documents supply examples and implementation/release
-context; their execution quality gates are not plan-scoring prerequisites.
-If an old example conflicts with current component guidance, use the current
-guidance and disclose the discrepancy.
+Use this skill and its scoring rubric to grade plan readiness. Use the trusted
+shared `docs/INTEGRATION-TESTING.md` and each affected component's touched-area
+map together: the shared guide establishes canonical tiers and shared
+requirements, while the map identifies behavior-specific required tiers and
+boundaries. Preserve explicit boundary requirements in the approved PRD/design
+too. A matrix requirement or shared tier definitions alone do not require an
+integration-tier case. The strategy/reference documents supply examples and
+implementation/release context; their execution quality gates are not
+plan-scoring prerequisites. If an old example conflicts with current component
+guidance, use the current guidance and disclose the discrepancy.
 
 For Grounding 1, identify a missing or ambiguous execution-row field, omitted
 required case, or unsupported existing-source claim. A fully disclosed proposed
@@ -138,8 +150,10 @@ Score each dimension independently. For each:
 3. Note what would raise the score
 
 Before assigning Grounding, compare the plan's component and behavior rows with
-the affected components' touched-area maps and the relevant component sections
-of `docs/INTEGRATION-TESTING.md`. For every required matrix row,
+approved PRD/design boundary requirements, the affected components' touched-area
+maps, and the relevant sections of `docs/INTEGRATION-TESTING.md`. The shared
+guide establishes canonical tier mapping and shared evidence/ownership rules;
+the maps identify behavior-specific requirements. For every required matrix row,
 record the owning component and behavior, requirement/interface references,
 test-case IDs, claimed tier, owner, required boundary, named suite or proposed
 location, verified command or concrete manual procedure, applicable working
@@ -276,7 +290,7 @@ For each TC check:
 - Steps are numbered with specific API calls and parameters
 - Expected Results state observable outcomes (not restatements of ACs)
 - Story/AC metadata links to the implementing story
-- The owner matches the test tier's documented work ownership
+- The work owner is present and matches the test tier's documented ownership
 - The test approach identifies the suite and verified command or a concrete
   manual procedure, plus applicable working directory or justified N/A for a
   manual case, and environment prerequisites without presenting proposed details
@@ -285,11 +299,22 @@ For each TC check:
 - Priority and Automation fields are set
 
 Missing matrix evidence fields are Grounding gaps; do not score Actionability 0
-solely for those omissions.
+solely for those omissions. For an otherwise usable case, a missing or
+tier-mismatched owner also sets Actionability to 1; owner absence or mismatch
+alone never scores Actionability 0. Score Actionability 2 only when every case
+has a present owner consistent with its canonical tier. A missing owner on a
+required integration row remains Grounding 1 evidence and is subject to the
+existing `integrationRequired` Revise cap, but an owner gap does not invoke the
+integration-boundary Rework veto. An explicit statement that no owner is
+assigned is honest gap disclosure; it does not supply an owner for Actionability 2.
 
-**0** = Missing steps or assertions, or no usable behavioral test scenario
-**1** = Structure present but some TCs lack specifics
-**2** = Every TC fully specified with preconditions, steps, results
+**0** = A case has no steps, has neither expected results nor assertions, or
+has no usable behavioral test scenario
+**1** = Steps and expected results are present, but some cases have vague or
+unobservable outcomes, missing parameters, or an otherwise usable case has a
+missing or tier-mismatched work owner
+**2** = Every TC fully specified with preconditions, steps, results, and a
+present work owner consistent with its canonical tier
 
 ### Dimension 5: Consistency (0-2)
 
