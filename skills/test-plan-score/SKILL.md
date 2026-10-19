@@ -1,7 +1,7 @@
 ---
 name: test-plan-score
 metadata:
-  version: "0.7.0"
+  version: "0.7.1"
 description: |
   Score an OSAC test plan against the 5-dimension rubric (Specificity,
   Grounding, Scope Fidelity, Actionability, Consistency). Produces
@@ -62,37 +62,17 @@ The input testplan follows this structure:
 | Automated / Manual | ... |
 ```
 
-For OSAC changes, use the per-component coverage matrix required by the shared
-planning guidance to connect each behavior to its tier, boundary, owner, suite,
-and execution evidence. The shared `docs/INTEGRATION-TESTING.md` establishes
-canonical tiers, common planning-evidence and ownership requirements, and the
-rule that lower tiers do not satisfy higher-tier boundaries; each affected
-component's touched-area map identifies the tiers and boundaries required for
-its changed behavior. Preserve explicit boundary requirements in the approved
-PRD/design as well. Apply these sources together; the shared guide does not
-replace the map, and the map does not replace shared requirements. A matrix
-requirement or the shared guide's tier definitions alone do not require an
-integration-tier case. If the matrix is absent, compare the test cases with the
-touched-area maps and report the missing evidence. Do not treat a test case as
-proof of a boundary unless its documented tier and dependencies actually
-exercise that boundary. Each row must identify the owning component, touched
-behavior and requirement/interface references; required tier and boundary;
-owner and test-case IDs; existing suite/file or proposed location; verified
-test command and working directory, or a concrete manual procedure; if a shell
-command or working directory does not apply, state N/A and why; environment
-prerequisites;
-real-versus-mocked/omitted
-dependencies; execution status; and any unavailable suite or unresolved
-prerequisite with its follow-up Jira URL or an explicit no-owner/ticket
-statement.
-If no owner or ticket exists, state that the gap is unresolved without inventing
-a ticket.
-
-Verify existing suites and commands against repository guidance. Label a new
-location or unverified command as proposed. Record `not run` or `blocked`
-honestly; neither is a passing result. A reported pass needs evidence of the
-command or manual procedure and observed result. Keep planned coverage, an identified execution path, and a passed execution
-distinct in the score and feedback.
+For OSAC changes, use the shared planning guide, affected component maps, and
+approved PRD/design boundaries together. The guide defines canonical tiers and
+shared evidence/ownership rules; maps define behavior-specific boundaries. A
+matrix or tier taxonomy alone does not require integration coverage. If the
+matrix is absent, report missing evidence against the maps. Each row names the
+component and behavior, requirement, tier/boundary, owner and cases, suite or
+proposed location, verified command or concrete manual procedure, prerequisites,
+real-versus-mocked dependencies, execution status, and follow-up for unavailable
+work. Explain N/A, label proposals, and do not invent owners or tickets. Do not
+claim a boundary the setup does not exercise. Verify commands and observed
+results; planned coverage, an execution path, and a passing run are distinct.
 
 ## Input Detection
 
@@ -126,16 +106,10 @@ covered.
 
 ## Scoring Process
 
-Use this skill and its scoring rubric to grade plan readiness. Use the trusted
-shared `docs/INTEGRATION-TESTING.md` and each affected component's touched-area
-map together: the shared guide establishes canonical tiers and shared
-requirements, while the map identifies behavior-specific required tiers and
-boundaries. Preserve explicit boundary requirements in the approved PRD/design
-too. A matrix requirement or shared tier definitions alone do not require an
-integration-tier case. The strategy/reference documents supply examples and
-implementation/release context; their execution quality gates are not
-plan-scoring prerequisites. If an old example conflicts with current component
-guidance, use the current guidance and disclose the discrepancy.
+Use the shared guide and affected maps together, preserving explicit approved
+PRD/design boundaries. A matrix or tier taxonomy alone does not require
+integration coverage. Strategy/reference documents provide examples, not
+execution gates; use current guidance over stale examples and disclose conflicts.
 
 For Grounding 1, identify a missing or ambiguous execution-row field, omitted
 required case, or unsupported existing-source claim. A fully disclosed proposed
@@ -149,32 +123,14 @@ Score each dimension independently. For each:
 2. Assign the score (0, 1, or 2)
 3. Note what would raise the score
 
-Before assigning Grounding, compare the plan's component and behavior rows with
-approved PRD/design boundary requirements, the affected components' touched-area
-maps, and the relevant sections of `docs/INTEGRATION-TESTING.md`. The shared
-guide establishes canonical tier mapping and shared evidence/ownership rules;
-the maps identify behavior-specific requirements. For every required matrix row,
-record the owning component and behavior, requirement/interface references,
-test-case IDs, claimed tier, owner, required boundary, named suite or proposed
-location, verified command or concrete manual procedure, applicable working
-directory or justified N/A, environment prerequisites, execution status, and
-which dependencies run for real versus being mocked, stubbed, or
-omitted. Record a follow-up Jira URL for each known unavailable suite or
-unresolved infrastructure prerequisite, or state that no owner/ticket exists.
-Check that any component-specific tier label maps to the canonical tier in the
-shared guidance, and that the row's owner matches the documented tier ownership.
-Each coverage row must select one canonical tier; slash-separated alternatives
-or multiple candidate tiers are ambiguous and do not identify an execution path.
-A manual case may identify its procedure instead of a shell command and explain
-why a working directory does not apply. Supplemental static/build checks may be
-listed separately as non-test validation, but are not a test tier and cannot
-satisfy a Unit, Envtest, component-integration, Contract, or E2E requirement.
-Only compare boundaries that apply to the changed behavior; a documented
-provider gap for unrelated behavior is not a failure. A proposed suite location
-must be labelled proposed and must not be described as an existing runnable
-suite. Verify an existing command against the repository file that defines it;
-label an unverified or invented command as proposed, and do not count it as an
-identified runnable path.
+Before assigning Grounding, compare each required row with approved PRD/design
+boundaries, affected maps, the shared guide, and cited repository sources.
+Verify its canonical tier, owner, boundary, case IDs, suite/location,
+command or manual procedure, prerequisites, status, dependencies, and gaps or
+follow-up. A row must select one tier, not alternatives. Label unverified paths
+as proposed; manual cases need an actionable procedure and justified N/A.
+Static/build checks are not test tiers. Assess only boundaries for changed
+behavior; unrelated provider gaps are not failures.
 
 ### Dimension 1: Specificity (0-2)
 
@@ -298,15 +254,11 @@ For each TC check:
 - Execution status distinguishes planned, blocked, not run, and passed evidence
 - Priority and Automation fields are set
 
-Missing matrix evidence fields are Grounding gaps; do not score Actionability 0
-solely for those omissions. For an otherwise usable case, a missing or
-tier-mismatched owner also sets Actionability to 1; owner absence or mismatch
-alone never scores Actionability 0. Score Actionability 2 only when every case
-has a present owner consistent with its canonical tier. A missing owner on a
-required integration row remains Grounding 1 evidence and is subject to the
-existing `integrationRequired` Revise cap, but an owner gap does not invoke the
-integration-boundary Rework veto. An explicit statement that no owner is
-assigned is honest gap disclosure; it does not supply an owner for Actionability 2.
+Missing matrix fields are Grounding gaps, not Actionability 0. For an otherwise
+usable case, a missing or tier-mismatched owner scores Actionability 1; score 2
+requires a present, tier-consistent owner on every case. Owner gaps do not cause
+Actionability 0 or the integration-boundary Rework veto. Apply Grounding and
+`integrationRequired` rules separately; see `references/ci-assessment.md`.
 
 **0** = A case has no steps, has neither expected results nor assertions, or
 has no usable behavioral test scenario
