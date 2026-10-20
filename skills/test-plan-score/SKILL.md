@@ -1,7 +1,7 @@
 ---
 name: test-plan-score
 metadata:
-  version: "0.7.2"
+  version: "0.7.3"
 description: |
   Score an OSAC test plan against the 5-dimension rubric (Specificity,
   Grounding, Scope Fidelity, Actionability, Consistency). Produces
@@ -368,8 +368,14 @@ PRD/design review verdict format.
 
 Enhancement-proposals CI invokes this scorer for every affected plan, including
 an unchanged plan whose PRD or design changed. A new or edited design requires
-a plan. PRD-only work without a design and unrelated changes are not applicable;
-untouched legacy designs are not retroactively required to add a plan.
+a plan: an affected enhancement that has a design but no test plan is recorded
+as an unscored affected plan missing required context and fails the aggregate
+check, as does removing or renaming the only test plan. PRD-only work without
+a design and unrelated changes are not applicable; untouched legacy designs
+are not retroactively required to add a plan. A PR that changes no enhancement
+PRD, design, or test plan resolves to an explicitly recorded Not-applicable
+result, never a silent vacuous pass; an empty affected-plan set cannot skip a
+required plan.
 
 Only a valid **Ready** verdict permits merge. A high numeric total cannot
 override evidence caps or integration-boundary vetoes in the scoring rubric.
