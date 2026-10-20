@@ -201,8 +201,10 @@ and how tests run, not what they test.
 
 **Can an engineer implement the tests from the plan without guessing?**
 
-- 0 = Missing steps or assertions, or no usable behavioral test scenario
-- 1 = Structure present but some TCs lack specific parameters or assertions
+- 0 = A case has no steps, has neither expected results nor assertions, or has
+  no usable behavioral test scenario
+- 1 = Steps and expected results are present, but some cases have vague or
+  unobservable outcomes or missing parameters
 - 2 = Every TC specifies preconditions, numbered steps with parameters, and concrete expected results
 
 Also verify that each case has a present work owner consistent with its required

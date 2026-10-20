@@ -1,7 +1,7 @@
 ---
 name: test-plan-score
 metadata:
-  version: "0.7.1"
+  version: "0.7.2"
 description: |
   Score an OSAC test plan against the 5-dimension rubric (Specificity,
   Grounding, Scope Fidelity, Actionability, Consistency). Produces
@@ -346,7 +346,7 @@ Write `verdict.json`:
   "total": 8,
   "criterionNotes": {
     "specificity": "...",
-    "grounding": "...",
+    "grounding": "Grounding 1 with integrationRequired=true caps the 8-point plan at Revise: TC-FR4-01 is the required component-integration case, but its execution row omits the command (verified or explicitly proposed) and working directory.",
     "scope_fidelity": "...",
     "actionability": "...",
     "consistency": "..."
