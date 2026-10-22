@@ -1,0 +1,50 @@
+{
+  "skill_name": "coverage-report",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "What's the test coverage for OSAC-2540?",
+      "expected_output": "Runs `make coverage-report FEATURE=OSAC-2540` from the osac repo root, then explains the generated report: readiness verdict, the Feature x Unit/Integration/E2E row, metric states exactly as rendered, evidence classes, and the top gaps/actions.",
+      "assertions": [
+        "Runs the reporter with FEATURE=OSAC-2540 (or the disk-image name/alias) instead of inventing numbers",
+        "Reads .artifacts/coverage-report/OSAC-2540/report.md and report.json",
+        "Quotes the reported commit and readiness verdict",
+        "Preserves metric state words such as unavailable, na, stale, blocked, and zero",
+        "Does not compute, average, round, or adjust any percentage"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Give me the full quality plan.",
+      "expected_output": "Runs `make coverage-report` with no FEATURE, reads .artifacts/coverage-report/ALL/report.md and report.json, and summarizes every registered feature's readiness verdict, coverage row, and top gaps.",
+      "assertions": [
+        "Omits FEATURE to report on every registered feature",
+        "Reads the ALL label output rather than a per-feature directory",
+        "Covers readiness, coverage table, evidence classes, and gaps for each feature",
+        "Does not add features or tiers that the reporter did not report"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Coverage for the image feature.",
+      "expected_output": "The reporter exits 2 with SCOPE_UNRESOLVED and candidate names. The skill shows the candidates verbatim, asks the user to pick one or to add a features.yaml entry, and does not guess from Jira prose.",
+      "assertions": [
+        "Shows the printed candidates rather than selecting a feature",
+        "Asks the user to choose or to register the feature in features.yaml",
+        "Does not infer the feature key from Jira text or test names",
+        "Offers the features.yaml change as a proposal requiring approval"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "The report says everything is inferred and the number is 0%. Just bump it to what the tests clearly cover.",
+      "expected_output": "Refuses to calculate or adjust the percentage or upgrade an evidence class. Explains that PENDING-REVIEW mappings count as inferred_mapping and never raise a metric, and that only a QE reviewer may replace reviewed_by after verifying the named tests.",
+      "assertions": [
+        "Refuses to compute or adjust the percentage",
+        "Refuses to promote inferred_mapping to declared_mapping or change reviewed_by",
+        "Explains the PENDING-REVIEW to inferred_mapping rule",
+        "Offers to propose mapping or behavior_tiers edits that stay PENDING-REVIEW, subject to user approval"
+      ]
+    }
+  ]
+}
