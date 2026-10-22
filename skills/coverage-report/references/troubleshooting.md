@@ -8,7 +8,7 @@ result. All commands run from the `osac` repo root unless stated otherwise.
 
 | Symptom | Cause | Action |
 |---|---|---|
-| Unit is `unavailable` (`UNIT_EVIDENCE_UNAVAILABLE`) | No coverprofile was discovered and none was passed. | Say plainly that this is missing evidence, not zero. To measure: `cd fulfillment-service && ginkgo run -r --cover --coverprofile=/abs/path/cover.out internal`, then re-run with `ARGS="--coverprofile /abs/path/cover.out"`. Warn that it is slow. |
+| Unit is `unavailable` (`UNIT_EVIDENCE_UNAVAILABLE`) | No coverprofile was discovered and none was passed. | Say plainly that this is missing evidence, not zero. To measure, follow "Measured unit coverage" in SKILL.md Step 1. |
 | Unit is `blocked`, `UNIT_PACKAGE_MISSING` | A package listed in `features.yaml` `unit_packages` is absent from the profile. | Run the full suite (`-r internal`) rather than a focused package, or correct the `unit_packages` entry (with approval). |
 | `UNIT_METRIC_SCOPE_INCOMPLETE` | The feature maps no `unit_packages`; there is nothing to measure. | Propose packages in `features.yaml` (with approval). |
 | Integration/E2E is `na`, `BEHAVIOR_INVENTORY_UNAVAILABLE` | No test plan was loaded for the feature. | Check the `testplan` path in `features.yaml` and the `enhancement_roots` in `.coverage-skill.yaml`. The file must exist under a configured root. |
@@ -36,8 +36,10 @@ result. All commands run from the `osac` repo root unless stated otherwise.
 
 ## PENDING-REVIEW mappings
 
-A mapping file whose `reviewed_by` is `PENDING-REVIEW` (or empty, `pending`,
-`todo`, `tbd`, `unreviewed`, `none`) is treated as `inferred_mapping`. Its
+Review status fails closed. A mapping file counts as reviewed only when
+`reviewed_by` names a GitHub user or team (for example `@user` or
+`org/team`). Any other value, including `PENDING-REVIEW`, an empty value,
+`n/a`, `tbd`, a list, or `false`, is treated as `inferred_mapping`. Its
 entries do **not** count toward any metric, even though the tests may genuinely
 cover the behavior.
 
@@ -50,13 +52,12 @@ cover the behavior.
 
 ## Scope and configuration failures
 
-| Exit / code | Cause | Action |
-|---|---|---|
-| 2 `SCOPE_UNRESOLVED` | No registry entry matches the input. | Show the `candidates:` line and the printed registry snippet; ask the user to choose, or propose a `features.yaml` entry. Never pick a feature from Jira prose. |
-| 2 `SCOPE_AMBIGUOUS` | The input matches more than one entry (for example an alias shared by two features). | Show every candidate and ask which one was meant; propose disambiguating the alias or name. |
-| 2 `USAGE_ERROR` | Bad flag or argument. | Show the usage message; fix the command. |
-| 3 `CONFIG_INVALID` | Invalid `.coverage-skill.yaml`, `features.yaml`, or mapping file. | Show `error`, `field`, and `recovery`; propose the minimal fix with approval. Unknown keys are rejected, not ignored. |
-| 1 `MODEL_INVARIANT`, `PUBLISH_FAILED`, `REPO_UNAVAILABLE`, `EVIDENCE_PROMOTION`, `INTERNAL_ERROR` | Tool defect or unusable repository state. | Report the verbatim error and `run_id`. Do not edit inputs or reports to force a pass; escalate. |
+Exit codes and what to do for each are in SKILL.md Step 2. Details that apply
+only here:
+
+- `SCOPE_AMBIGUOUS` usually means an alias is shared by two features; propose
+  disambiguating the alias or name.
+- `CONFIG_INVALID` rejects unknown keys instead of ignoring them.
 
 ## Reading outputs
 
@@ -65,9 +66,6 @@ cover the behavior.
   compares against the previously published report for the same scope. The
   report says "No previous report was compared" when none exists or the rerun
   has identical inputs.
-- `PREVIOUS_REPORT_INVALID` (exit 3) means the `--previous` file is unreadable
-  or is not a report document; point `--previous` at a `report.json` from an
-  earlier run.
 - `run-manifest.json` records which config layer supplied each effective value
   (CLI flags > `.coverage-skill.yaml` > defaults). Use it when a value looks
   unexpected instead of guessing.

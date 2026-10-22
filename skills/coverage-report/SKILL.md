@@ -32,8 +32,8 @@ The reporter is the only source of truth. This skill:
 - **Never upgrades an evidence class** or repeats an `inferred_mapping`
   suggestion as if it were reviewed or measured.
 - **Never edits, regenerates by hand, or "corrects"** a generated report.
-- **Never marks a mapping reviewed.** A `reviewed_by` value other than
-  `PENDING-REVIEW` is a QE reviewer's claim, not an agent's.
+- **Never marks a mapping reviewed.** A `reviewed_by` reviewer handle is a
+  QE reviewer's claim, not an agent's.
 - **Never posts to Jira, opens a PR, or changes production code or tests.**
   Editing `tools/coverage-report/config/mappings/<KEY>.yaml`,
   `tools/coverage-report/config/features.yaml`, or `.coverage-skill.yaml` is
@@ -97,8 +97,8 @@ reusing a profile from another commit — a different revision is classified
 |---|---|---|
 | 0 | Report written | Continue to Step 3 |
 | 2 | `SCOPE_UNRESOLVED`, `SCOPE_AMBIGUOUS`, or `USAGE_ERROR` | Show the printed error; for the scope codes show the `candidates:` list verbatim and ask the user to pick one — **never guess from Jira prose**. Offer to add a `features.yaml` entry (Step 4). |
-| 3 | `CONFIG_INVALID` | Show the printed `error`, `field`, and `recovery` lines. Propose the config fix; do not edit it unasked. |
-| 1 | Tool defect (`MODEL_INVARIANT`, `PUBLISH_FAILED`, `REPO_UNAVAILABLE`, `EVIDENCE_PROMOTION`, …) | Report the verbatim error plus `run_id`. Do not work around it by editing inputs, reports, or evidence. |
+| 3 | `CONFIG_INVALID` or `PREVIOUS_REPORT_INVALID` | Show the printed `error`, `field`, and `recovery` lines. Propose the config fix, or point `--previous` at an earlier `report.json`; do not edit config unasked. |
+| 1 | Tool defect (`MODEL_INVARIANT`, `PUBLISH_FAILED`, `REPO_UNAVAILABLE`, `EVIDENCE_PROMOTION`, `INTERNAL_ERROR`) | Report the verbatim error plus `run_id`. Do not work around it by editing inputs, reports, or evidence. |
 
 Also quote the printed `run_id:` on any failure — it is the audit handle for
 the run.

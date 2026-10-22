@@ -9,7 +9,7 @@ reporter, not this skill, decides which one applies to a report.
 |---|---|---|
 | `measured` | A collector measured the artifact directly — a Go coverprofile for unit coverage. | Yes, unit numerator. |
 | `observed_execution` | A test actually ran; JUnit records the outcome. | Yes, execution status. |
-| `declared_mapping` | A human-reviewed mapping says this test covers the behavior (`reviewed_by` is not `PENDING-REVIEW`). | Yes, behavior numerator. |
+| `declared_mapping` | A human-reviewed mapping says this test covers the behavior (`reviewed_by` names a GitHub user or team). | Yes, behavior numerator. |
 | `inferred_mapping` | A heuristic or an unreviewed config entry suggests coverage. Includes `PENDING-REVIEW` mappings, TC references, coverage notes, and keyword overlap. | **No — never counts.** |
 | `gap_unknown` | A mapping names evidence that cannot be found (missing test file or spec). | No. |
 
