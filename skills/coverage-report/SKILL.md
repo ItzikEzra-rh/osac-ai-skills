@@ -81,15 +81,18 @@ Without a coverprofile the unit metric is `unavailable` — missing evidence,
 
 ```bash
 cd fulfillment-service
-ginkgo run -r --cover --coverprofile=/abs/path/cover.out internal
+ginkgo run -r --cover --output-dir=/abs/path --coverprofile=cover.out internal
 ```
 
-Warn that this runs the whole unit suite and is slow. Then pass the absolute
-path via `ARGS`. A coverprofile carries no revision; write a sidecar
-`/abs/path/cover.out.meta.json` containing `{"revision": "<commit sha>"}` so
-the evidence is `current` instead of freshness `unknown`. Regenerate instead of
-reusing a profile from another commit — a different revision is classified
-`stale` and blocks the metric.
+Warn that this runs the whole unit suite and is slow. Ginkgo's `--coverprofile`
+takes a filename, not a path; `--output-dir` decides where it lands. Then pass
+the resulting absolute path to the reporter via `ARGS` (`/abs/path/cover.out`).
+A coverprofile carries no revision: write a sidecar
+`/abs/path/cover.out.meta.json` containing `{"revision": "<commit sha>"}` only
+when you know the commit the profile was produced at — normally the commit you
+just ran the suite at. Never label an older profile with the current commit.
+Regenerate instead of reusing a profile from another commit — a different
+revision is classified `stale` and blocks the metric.
 
 ## Step 2: Run and Branch on the Exit Code
 

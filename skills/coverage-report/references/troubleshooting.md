@@ -21,9 +21,9 @@ result. All commands run from the `osac` repo root unless stated otherwise.
 |---|---|---|
 | Unit is `stale` (`UNIT_EVIDENCE_STALE`) | The coverprofile sidecar records a different revision than the reported commit. | Regenerate at the reported commit, or report the commit the profile describes (`--sha`). Do not relabel evidence. |
 | Unit is `blocked`, `UNIT_EVIDENCE_PARTIAL_STALE` | Some mapped packages are stale, others current. | Regenerate the whole profile; mixing revisions is refused by design. |
-| `UNIT_REVISION_UNKNOWN` warning | The coverprofile has no revision metadata; freshness is `unknown`, which still allows a value. | Write `/abs/path/cover.out.meta.json` with `{"revision": "<commit sha>"}` so freshness becomes `current`. |
-| JUnit results show `stale` / evidence is stale | The JUnit run recorded a different revision (from a `<file>.meta.json` sidecar or `<testsuite>` `revision`/`git_sha`/`commit` property). | Re-run the suite at the reported commit, or add/correct the sidecar revision. |
-| `no revision in a sidecar or <properties>` diagnostic | JUnit XML carries no revision, so freshness is unknown. | Write `<junit>.meta.json` with `{"revision": "<commit sha>"}`. |
+| `UNIT_REVISION_UNKNOWN` warning | The coverprofile has no revision metadata; freshness is `unknown`, which still allows a value. | Add a sidecar `/abs/path/cover.out.meta.json` with `{"revision": "<sha>"}` only if you can establish the revision the profile was produced at; otherwise regenerate the profile at the reported commit. Never write the current commit into an existing profile's sidecar to relabel it as current. |
+| JUnit results show `stale` / evidence is stale | The JUnit run recorded a different revision (from a `<file>.meta.json` sidecar or `<testsuite>` `revision`/`git_sha`/`commit` property). | Re-run the suite at the reported commit, or set the sidecar to the revision the run actually used — never the current commit. |
+| `no revision in a sidecar or <properties>` diagnostic | JUnit XML carries no revision, so freshness is unknown. | Add `<junit>.meta.json` with `{"revision": "<sha>"}` only if you can establish the revision the run was produced at; otherwise re-run the suite at the reported commit. |
 
 ## Blocked or provisional behavior metrics
 

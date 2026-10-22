@@ -32,11 +32,13 @@ and only when a reviewer sets `reviewed_by`. Nothing is promoted automatically.
 
 ### Provisional percentages
 
-A behavior tier metric with tier-unassigned behaviors reports `blocked` plus a
-**provisional** percentage over the tiered behaviors only. It is printed as
-`blocked (provisional X% n/d, N tier-unassigned)` and is not a real value.
-Never quote it as coverage; quote it as "provisional over the N tiered
-behaviors, blocked until the remaining tiers are assigned".
+A behavior-tier metric with tier-unassigned behaviors reports `blocked` plus a
+**provisional** percentage computed only over the behaviors that have a tier.
+It is printed as `blocked (provisional X% n/d, N tier-unassigned)`, where `N`
+is the number of behaviors still without a tier — not the number the
+percentage was computed over. It is not a real value: never quote it as
+coverage. Say instead that the percentage is provisional over the tiered
+behaviors and blocked until the `N` tier-unassigned behaviors get a tier.
 
 ## Behavior statuses (Detail section)
 
@@ -87,7 +89,7 @@ revision is stale; a missing revision is unknown — freshness is never assumed.
 
 | Verdict | Condition |
 |---|---|
-| `ready` | No critical or high gaps, and no unavailable, stale, or blocked metric. |
+| `ready` | No critical or high gaps, no measured zero metric, and no unavailable, stale, or blocked metric. |
 | `not ready` | Any critical/high gap, or any measured zero metric. |
 | `insufficient evidence` | Any unavailable, stale, or blocked metric, or any tier-unassigned behavior. |
 
