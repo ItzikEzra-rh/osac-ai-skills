@@ -1,7 +1,7 @@
 ---
 name: test-plan-review
 metadata:
-  version: "0.2.0"
+  version: "0.2.1"
 description: |
   Completeness reviewer for ai-workflows testplans. Checks requirement
   coverage, test case depth, structural consistency, and gap analysis.

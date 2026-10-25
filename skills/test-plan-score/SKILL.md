@@ -1,7 +1,7 @@
 ---
 name: test-plan-score
 metadata:
-  version: "0.2.0"
+  version: "0.2.1"
 description: |
   Score an OSAC test plan against the 5-dimension rubric (Specificity,
   Grounding, Scope Fidelity, Actionability, Consistency). Produces
@@ -155,13 +155,17 @@ For each TC check:
 **1** = Structure present but some TCs lack specifics or a tier
 **2** = Every TC fully specified with preconditions, steps, results, tier, and owner
 
-**Named deduction — missing tier:** A TC without a `Tier / owner` line
-cannot be attributed to Unit, Integration, or E2E coverage, so it is a
-finding, not a formatting nit:
-- Any TC missing a tier is an `important` finding.
-- If one or more TCs lack a tier, Actionability is capped at 1.
+**Named deduction — missing tier or owner:** A TC without a `Tier / owner`
+line, or whose tier is not canonical or whose owner is not `[DEV]` or
+`[QE]`, cannot be attributed to Unit, Integration, or E2E coverage or
+routed to the story that executes it, so it is a finding, not a
+formatting nit:
+- Any TC missing or misdeclaring a tier or owner is an `important` finding.
+- If one or more TCs lack a valid tier or owner, Actionability is capped
+  at 1.
 - If no TC declares a tier, Actionability is 0 (Rework).
-- A plan with any missing tier cannot receive a Ready verdict.
+- A plan with any missing or invalid tier or owner cannot receive a Ready
+  verdict.
 
 ### Dimension 5: Consistency (0-2)
 
@@ -184,12 +188,12 @@ Check:
 
 ## Verdict
 
-- **Ready** (8-10, and every TC declares a tier): Test plan is
-  implementation-ready
+- **Ready** (8-10, and every TC declares a valid tier and owner): Test
+  plan is implementation-ready
 - **Revise** (5-7): Address gaps, re-score
 - **Revise** also applies when a plan scores 8-10 but fails the
-  every-case-declares-a-tier gate (Actionability capped at 1): the
-  total alone cannot make it Ready.
+  every-case-declares-a-valid-tier-and-owner gate (Actionability capped
+  at 1): the total alone cannot make it Ready.
 - **Rework** (0-4 or any zero): Fundamental issues — zero on any
   dimension is automatic Rework
 
