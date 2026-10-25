@@ -40,7 +40,7 @@ The input testplan follows this structure:
 | {Jira key} | AC-1, AC-2 | critical | automated |
 
 ##### Preconditions
-- **Tier / owner:** {Unit|Component integration|E2E} / [{owner}]
+- **Tier / owner:** {Unit|Envtest|Component integration|Contract|E2E} / [{owner}]
 - {system state}
 
 ##### Steps
@@ -187,6 +187,9 @@ Check:
 - **Ready** (8-10, and every TC declares a tier): Test plan is
   implementation-ready
 - **Revise** (5-7): Address gaps, re-score
+- **Revise** also applies when a plan scores 8-10 but fails the
+  every-case-declares-a-tier gate (Actionability capped at 1): the
+  total alone cannot make it Ready.
 - **Rework** (0-4 or any zero): Fundamental issues — zero on any
   dimension is automatic Rework
 

@@ -18,6 +18,9 @@ and owning story.
 - **Ready** (8-10, and every TC declares a tier): Test plan is
   implementation-ready
 - **Revise** (5-7): Address gaps, re-score
+- **Revise** also applies when a plan scores 8-10 but fails the
+  every-case-declares-a-tier gate (Actionability capped at 1): the
+  total alone cannot make it Ready.
 - **Rework** (0-4 or any zero): Fundamental issues
 
 ## Dimensions

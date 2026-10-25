@@ -1,7 +1,7 @@
 ---
 name: test-plan-review
 metadata:
-  version: 0.2.0
+  version: "0.2.0"
 description: |
   Completeness reviewer for ai-workflows testplans. Checks requirement
   coverage, test case depth, structural consistency, and gap analysis.
@@ -109,9 +109,11 @@ Every case must declare `Tier / owner` as its first Preconditions bullet:
 - The tier is a canonical OSAC tier (`Unit`, `Envtest`,
   `Component integration`, `Contract`, `E2E`) per `docs/INTEGRATION-TESTING.md`?
 - The owner names the `[DEV]` or `[QE]` story that will execute it?
-- **A missing or non-canonical tier is a finding**, not a formatting nit:
-  the case cannot be attributed to Unit, Integration, or E2E coverage.
-  List each affected TC and make the verdict NEEDS WORK.
+- **A missing or invalid tier or owner is a finding**, not a formatting
+  nit: the case cannot be attributed to Unit, Integration, or E2E
+  coverage, nor routed to the story that will execute it. List every
+  affected TC and make the verdict NEEDS WORK when either is missing or
+  invalid.
 
 ## Output Format
 
