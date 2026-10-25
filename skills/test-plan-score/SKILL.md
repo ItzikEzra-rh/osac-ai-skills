@@ -1,7 +1,7 @@
 ---
 name: test-plan-score
 metadata:
-  version: "0.1.1"
+  version: "0.2.0"
 description: |
   Score an OSAC test plan against the 5-dimension rubric (Specificity,
   Grounding, Scope Fidelity, Actionability, Consistency). Produces
@@ -40,6 +40,7 @@ The input testplan follows this structure:
 | {Jira key} | AC-1, AC-2 | critical | automated |
 
 ##### Preconditions
+- **Tier / owner:** {Unit|Component integration|E2E} / [{owner}]
 - {system state}
 
 ##### Steps
@@ -146,10 +147,21 @@ For each TC check:
 - Expected Results state observable outcomes (not restatements of ACs)
 - Story/AC metadata links to the implementing story
 - Priority and Automation fields are set
+- A `Tier / owner` line names the execution tier (a canonical OSAC
+  tier from `docs/INTEGRATION-TESTING.md`) and the owning `[DEV]` or
+  `[QE]` story
 
 **0** = Missing steps, vague results, no implementation path
-**1** = Structure present but some TCs lack specifics
-**2** = Every TC fully specified with preconditions, steps, results
+**1** = Structure present but some TCs lack specifics or a tier
+**2** = Every TC fully specified with preconditions, steps, results, tier, and owner
+
+**Named deduction — missing tier:** A TC without a `Tier / owner` line
+cannot be attributed to Unit, Integration, or E2E coverage, so it is a
+finding, not a formatting nit:
+- Any TC missing a tier is an `important` finding.
+- If one or more TCs lack a tier, Actionability is capped at 1.
+- If no TC declares a tier, Actionability is 0 (Rework).
+- A plan with any missing tier cannot receive a Ready verdict.
 
 ### Dimension 5: Consistency (0-2)
 
@@ -161,6 +173,8 @@ Check:
 - Story references use consistent format (all Jira keys or all local IDs)
 - Priority values are valid: critical, high, medium, low
 - Automation values are valid: automated, manual
+- Tier values name a canonical OSAC tier: Unit, Envtest, Component
+  integration, Contract, or E2E
 - Summary table counts match actual TC count
 - Overview "Requirements covered" matches sections present
 
@@ -170,7 +184,8 @@ Check:
 
 ## Verdict
 
-- **Ready** (8-10): Test plan is implementation-ready
+- **Ready** (8-10, and every TC declares a tier): Test plan is
+  implementation-ready
 - **Revise** (5-7): Address gaps, re-score
 - **Rework** (0-4 or any zero): Fundamental issues — zero on any
   dimension is automatic Rework

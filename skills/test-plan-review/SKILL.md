@@ -1,7 +1,7 @@
 ---
 name: test-plan-review
 metadata:
-  version: 0.1.0
+  version: 0.2.0
 description: |
   Completeness reviewer for ai-workflows testplans. Checks requirement
   coverage, test case depth, structural consistency, and gap analysis.
@@ -24,7 +24,8 @@ The input follows the ai-workflows format:
 - `## Overview` — feature, total TCs, requirements covered
 - `## Test Cases` — grouped by `### FR-N` / `### NFR-N` headings
 - Each `#### TC-{req}-{NN}` has: metadata table (Story/AC/Priority/Automation),
-  Preconditions, Steps, Expected Results
+  a `Tier / owner` bullet as the first Preconditions item, Steps, Expected
+  Results
 - `## Gaps` — uncovered requirements with justification
 - `## Summary` — counts by priority and automation
 
@@ -59,7 +60,9 @@ Read the PRD's functional and non-functional requirements. For each:
 
 For every TC in the testplan:
 - **Metadata table** — Story, AC, Priority, Automation all present?
-- **Preconditions** — concrete system state (not just "system running")?
+- **Preconditions** — concrete system state (not just "system running"),
+  with a `Tier / owner` bullet naming a canonical OSAC tier and the
+  owning `[DEV]` or `[QE]` story?
 - **Steps** — numbered with specific API calls and parameters?
 - **Expected Results** — observable outcomes with specific values?
   Banned: restatements of acceptance criteria, non-specific outcomes,
@@ -100,6 +103,16 @@ Review the Gaps section:
 - Does each gap have a justification (deferred, out of scope, dependency)?
 - Are there silent omissions — requirements with no TCs and no gap entry?
 
+### Check 7: Tier and Owner Attribution
+
+Every case must declare `Tier / owner` as its first Preconditions bullet:
+- The tier is a canonical OSAC tier (`Unit`, `Envtest`,
+  `Component integration`, `Contract`, `E2E`) per `docs/INTEGRATION-TESTING.md`?
+- The owner names the `[DEV]` or `[QE]` story that will execute it?
+- **A missing or non-canonical tier is a finding**, not a formatting nit:
+  the case cannot be attributed to Unit, Integration, or E2E coverage.
+  List each affected TC and make the verdict NEEDS WORK.
+
 ## Output Format
 
 ```markdown
@@ -109,6 +122,7 @@ Review the Gaps section:
 
 - Requirements covered: X/Y ({Z missing})
 - Test cases: X total (Y complete, Z shallow, W incomplete)
+- Tier coverage: X/Y TCs declare a tier and owner
 - AC coverage: X/Y story ACs mapped
 - Structural issues: X found
 
@@ -126,6 +140,7 @@ Review the Gaps section:
 |-------|--------|--------|
 | TC-FR1-01 | Complete | — |
 | TC-FR1-02 | Shallow | Expected Results restate AC without specifics |
+| TC-FR1-03 | Incomplete | No `Tier / owner` bullet — coverage cannot be attributed |
 | TC-FR7-06 | Complete | Placed under FR-13 section (structural issue) |
 
 ### Structural Issues
