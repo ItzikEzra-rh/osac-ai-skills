@@ -1,7 +1,7 @@
 ---
 name: test-plan-review
 metadata:
-  version: "0.2.1"
+  version: "0.3.0"
 description: |
   Completeness reviewer for ai-workflows testplans. Checks requirement
   coverage, test case depth, structural consistency, and gap analysis.
@@ -24,7 +24,7 @@ The input follows the ai-workflows format:
 - `## Overview` — feature, total TCs, requirements covered
 - `## Test Cases` — grouped by `### FR-N` / `### NFR-N` headings
 - Each `#### TC-{req}-{NN}` has: metadata table (Story/AC/Priority/Automation),
-  a `Tier / owner` bullet as the first Preconditions item, Steps, Expected
+  a `Tier:` bullet as the first Preconditions item, Steps, Expected
   Results
 - `## Gaps` — uncovered requirements with justification
 - `## Summary` — counts by priority and automation
@@ -61,8 +61,7 @@ Read the PRD's functional and non-functional requirements. For each:
 For every TC in the testplan:
 - **Metadata table** — Story, AC, Priority, Automation all present?
 - **Preconditions** — concrete system state (not just "system running"),
-  with a `Tier / owner` bullet naming a canonical OSAC tier and the
-  owning `[DEV]` or `[QE]` story?
+  with a `Tier:` bullet naming a canonical OSAC tier?
 - **Steps** — numbered with specific API calls and parameters?
 - **Expected Results** — observable outcomes with specific values?
   Banned: restatements of acceptance criteria, non-specific outcomes,
@@ -103,17 +102,22 @@ Review the Gaps section:
 - Does each gap have a justification (deferred, out of scope, dependency)?
 - Are there silent omissions — requirements with no TCs and no gap entry?
 
-### Check 7: Tier and Owner Attribution
+### Check 7: Tier Attribution
 
-Every case must declare `Tier / owner` as its first Preconditions bullet:
+Every case must declare its tier as its first Preconditions bullet:
 - The tier is a canonical OSAC tier (`Unit`, `Envtest`,
   `Component integration`, `Contract`, `E2E`) per `docs/INTEGRATION-TESTING.md`?
-- The owner names the `[DEV]` or `[QE]` story that will execute it?
-- **A missing or invalid tier or owner is a finding**, not a formatting
+- **A missing or invalid tier is a finding**, not a formatting
   nit: the case cannot be attributed to Unit, Integration, or E2E
-  coverage, nor routed to the story that will execute it. List every
-  affected TC and make the verdict NEEDS WORK when either is missing or
-  invalid.
+  coverage. List every affected TC and make the verdict NEEDS WORK
+  when the tier is missing or invalid.
+
+The legacy form `- **Tier / owner:** <tier> / [<owner>]`, already used by
+existing merged plans, is accepted: only its tier is read and the owner
+part is ignored. Do not rewrite existing plans. The owner is derived from
+the tier: Unit, Envtest, Component integration, and Contract cases belong
+to the `[DEV]` story; E2E cases belong to the `[QE]` story. Plan review
+does not check or score the owner.
 
 ## Output Format
 
@@ -124,7 +128,7 @@ Every case must declare `Tier / owner` as its first Preconditions bullet:
 
 - Requirements covered: X/Y ({Z missing})
 - Test cases: X total (Y complete, Z shallow, W incomplete)
-- Tier coverage: X/Y TCs declare a valid tier and owner
+- Tier coverage: X/Y TCs declare a canonical tier
 - AC coverage: X/Y story ACs mapped
 - Structural issues: X found
 
@@ -142,7 +146,7 @@ Every case must declare `Tier / owner` as its first Preconditions bullet:
 |-------|--------|--------|
 | TC-FR1-01 | Complete | — |
 | TC-FR1-02 | Shallow | Expected Results restate AC without specifics |
-| TC-FR1-03 | Incomplete | No `Tier / owner` bullet — coverage cannot be attributed |
+| TC-FR1-03 | Incomplete | No tier bullet — coverage cannot be attributed |
 | TC-FR7-06 | Complete | Placed under FR-13 section (structural issue) |
 
 ### Structural Issues
@@ -159,8 +163,8 @@ Every case must declare `Tier / owner` as its first Preconditions bullet:
 
 ### Verdict
 
-{PASS: all requirements covered, no incomplete TCs, every TC has a valid tier and owner, no structural issues}
-{NEEDS WORK: X requirements missing, Y TCs shallow, Z TCs missing or misdeclaring a tier or owner — list what to fix}
+{PASS: all requirements covered, no incomplete TCs, every TC has a canonical tier, no structural issues}
+{NEEDS WORK: X requirements missing, Y TCs shallow, Z TCs missing or misdeclaring a tier — list what to fix}
 ```
 
 ## Notes

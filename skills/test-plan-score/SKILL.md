@@ -1,7 +1,7 @@
 ---
 name: test-plan-score
 metadata:
-  version: "0.2.1"
+  version: "0.3.0"
 description: |
   Score an OSAC test plan against the 5-dimension rubric (Specificity,
   Grounding, Scope Fidelity, Actionability, Consistency). Produces
@@ -40,7 +40,7 @@ The input testplan follows this structure:
 | {Jira key} | AC-1, AC-2 | critical | automated |
 
 ##### Preconditions
-- **Tier / owner:** {Unit|Envtest|Component integration|Contract|E2E} / [{owner}]
+- **Tier:** {Unit|Envtest|Component integration|Contract|E2E}
 - {system state}
 
 ##### Steps
@@ -147,24 +147,30 @@ For each TC check:
 - Expected Results state observable outcomes (not restatements of ACs)
 - Story/AC metadata links to the implementing story
 - Priority and Automation fields are set
-- The **first Preconditions bullet** is a `Tier / owner` line naming
-  the execution tier (a canonical OSAC tier from
-  `docs/INTEGRATION-TESTING.md`) and the owning `[DEV]` or `[QE]` story
+- The **first Preconditions bullet** is a `Tier:` line naming the
+  execution tier (a canonical OSAC tier from
+  `docs/INTEGRATION-TESTING.md`)
+
+The legacy form `- **Tier / owner:** <tier> / [<owner>]`, already used by
+existing merged plans, is accepted: only its tier is read and the owner
+part is ignored. Do not rewrite existing plans. The owner is derived from
+the tier: Unit, Envtest, Component integration, and Contract cases belong
+to the `[DEV]` story; E2E cases belong to the `[QE]` story. Plan review
+does not check or score the owner.
 
 **0** = Missing steps, vague results, no implementation path
 **1** = Structure present but some TCs lack specifics or a tier
-**2** = Every TC fully specified with preconditions, steps, results, tier, and owner
+**2** = Every TC fully specified with preconditions, steps, results, and tier
 
-**Named deduction — missing tier or owner:** A TC whose first
-Preconditions bullet is not a well-formed `Tier / owner` line, or whose
-tier is not canonical or whose owner is not `[DEV]` or `[QE]`, cannot be
-attributed to Unit, Integration, or E2E coverage or routed to the story
-that executes it, so it is a finding, not a formatting nit:
-- Any TC missing or misdeclaring a tier or owner is an `important` finding.
-- If one or more TCs lack a valid tier or owner, Actionability is capped
+**Named deduction — missing tier:** A TC whose first
+Preconditions bullet is not a well-formed `Tier:` line (or the legacy
+`Tier / owner:` line), or whose tier is not canonical, cannot be attributed to Unit, Integration, or
+E2E coverage, so it is a finding, not a formatting nit:
+- Any TC missing or misdeclaring a tier is an `important` finding.
+- If one or more TCs lack a valid tier, Actionability is capped
   at 1.
 - If no TC declares a tier, Actionability is 0 (Rework).
-- A plan with any missing or invalid tier or owner cannot receive a Ready
+- A plan with any missing or invalid tier cannot receive a Ready
   verdict.
 
 ### Dimension 5: Consistency (0-2)
@@ -189,10 +195,10 @@ Check:
 ## Verdict
 
 - **Ready** (8-10, and every TC's first Preconditions bullet declares a
-  valid tier and owner): Test plan is implementation-ready
+  canonical tier): Test plan is implementation-ready
 - **Revise** (5-7): Address gaps, re-score
 - **Revise** also applies when a plan scores 8-10, has no zero-scored
-  dimension, and fails the every-case-declares-a-valid-tier-and-owner
+  dimension, and fails the every-case-declares-a-canonical-tier
   gate (Actionability capped at 1): the total alone cannot make it
   Ready.
 - **Rework** (0-4 or any zero): Fundamental issues — zero on any
