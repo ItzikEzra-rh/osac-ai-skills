@@ -65,12 +65,16 @@ ginkgo run -r --cover --output-dir=/abs/path --coverprofile=cover.out internal
 
 ## Step 2: Branch on Exit Code 2
 
-Exit 0 writes the report; only then read it. Exit 2 means the input was rejected:
-unknown area or group (an area prints `Did you mean:` / `Known features:`),
-unreadable or invalid config (duplicate area keys, absolute or `..` test-plan
-paths), a bad coverprofile, or an unwritable output directory. Show the message
-verbatim, then ask the user to pick, fix the config, or open a config MR; never
-guess.
+Exit 0 writes the report; only then read it. Exit 2 means the run was rejected,
+either because an input was invalid or because the report could not be written.
+
+- **Invalid input** — unknown area or group (an area prints `Did you mean:` /
+  `Known features:`), unreadable or invalid config (duplicate area keys,
+  absolute or `..` test-plan paths), or a bad coverprofile. Show the message
+  verbatim, then ask the user to pick, regenerate or replace the coverprofile,
+  or fix the config; offer a config MR only for a config defect. Never guess.
+- **Unwritable output** — `--out` could not be created or written. Ask the user
+  to choose a writable directory; do not open a config MR.
 
 The reporter writes each report file atomically: it writes `report.json`, then
 `report.md`, each through a temporary file and rename. A failure between the two

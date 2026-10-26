@@ -5,11 +5,14 @@
 - Config lives in `org-pulse-data` at `config/coverage/<wg>.yaml` (one file per WG, edited by MR); the osac `features.yaml` is the Core example and default.
 - `--features` takes files or a directory of `*.yaml` and merges them; duplicate
   area keys are rejected. A file may set a top-level `group:` default.
-- An entry has `key`, `name`, `group`, `testplans:` (several plans prefix ids
-  `<OSAC-key>/TC-...`; map that exact id), optional inline `behaviors:` (`id`,
-  `title`, `tier`), `unit_packages`, and `mappings:`.
-- Inline behaviors are automated with no priority, so their gaps sort `unknown`
-  and never drive `not ready`; only a reviewed mapping covers one.
+- An entry has `key`, `name`, `group`, `testplans:` (plans prefix ids
+  `<plan-key>/TC-...`, where `<plan-key>` is the plan's OSAC-N key or, when its
+  directory has none, the directory name; map that exact id), optional inline
+  `behaviors:` (`id`, `title`, `tier`, `priority`), `unit_packages`, and
+  `mappings:`.
+- Inline behaviors are automated. A configured `priority` is preserved in their
+  gaps, so `critical` or `high` can drive `not ready`; an unset priority sorts
+  `unknown`. Only a reviewed mapping covers one.
 
 ## Metric states
 
