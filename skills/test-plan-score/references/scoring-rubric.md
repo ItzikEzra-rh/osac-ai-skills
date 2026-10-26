@@ -15,12 +15,13 @@ and owning story.
 
 ## Verdicts
 
-- **Ready** (8-10, and every TC declares a valid tier and owner): Test
-  plan is implementation-ready
+- **Ready** (8-10, and every TC's first Preconditions bullet declares a
+  valid tier and owner): Test plan is implementation-ready
 - **Revise** (5-7): Address gaps, re-score
-- **Revise** also applies when a plan scores 8-10 but fails the
-  every-case-declares-a-valid-tier-and-owner gate (Actionability capped
-  at 1): the total alone cannot make it Ready.
+- **Revise** also applies when a plan scores 8-10, has no zero-scored
+  dimension, and fails the every-case-declares-a-valid-tier-and-owner
+  gate (Actionability capped at 1): the total alone cannot make it
+  Ready.
 - **Rework** (0-4 or any zero): Fundamental issues
 
 ## Dimensions
@@ -79,12 +80,13 @@ and how tests run, not what they test.
 
 - 0 = Missing steps, unclear assertions, no implementation path
 - 1 = Structure present but some TCs lack specific parameters, assertions, or a valid tier or owner
-- 2 = Every TC specifies preconditions, numbered steps with parameters, concrete expected results, and a `Tier / owner` line
+- 2 = Every TC specifies preconditions, numbered steps with parameters, concrete expected results, and a `Tier / owner` line as its first Preconditions bullet
 
-**Named deduction — missing tier or owner:** A TC without a `Tier / owner`
-line, or whose tier is not canonical or whose owner is not `[DEV]` or
-`[QE]`, cannot be attributed to Unit, Integration, or E2E coverage or
-routed to the story that executes it. Any such TC is an `important`
+**Named deduction — missing tier or owner:** A TC whose first
+Preconditions bullet is not a well-formed `Tier / owner` line, or whose
+tier is not canonical or whose owner is not `[DEV]` or `[QE]`, cannot be
+attributed to Unit, Integration, or E2E coverage or routed to the story
+that executes it. Any such TC is an `important`
 finding; one or more caps Actionability at 1, no tier at all makes
 Actionability 0 (Rework), and the plan cannot receive a Ready verdict.
 

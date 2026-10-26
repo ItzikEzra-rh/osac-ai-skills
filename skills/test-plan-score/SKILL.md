@@ -147,19 +147,19 @@ For each TC check:
 - Expected Results state observable outcomes (not restatements of ACs)
 - Story/AC metadata links to the implementing story
 - Priority and Automation fields are set
-- A `Tier / owner` line names the execution tier (a canonical OSAC
-  tier from `docs/INTEGRATION-TESTING.md`) and the owning `[DEV]` or
-  `[QE]` story
+- The **first Preconditions bullet** is a `Tier / owner` line naming
+  the execution tier (a canonical OSAC tier from
+  `docs/INTEGRATION-TESTING.md`) and the owning `[DEV]` or `[QE]` story
 
 **0** = Missing steps, vague results, no implementation path
 **1** = Structure present but some TCs lack specifics or a tier
 **2** = Every TC fully specified with preconditions, steps, results, tier, and owner
 
-**Named deduction — missing tier or owner:** A TC without a `Tier / owner`
-line, or whose tier is not canonical or whose owner is not `[DEV]` or
-`[QE]`, cannot be attributed to Unit, Integration, or E2E coverage or
-routed to the story that executes it, so it is a finding, not a
-formatting nit:
+**Named deduction — missing tier or owner:** A TC whose first
+Preconditions bullet is not a well-formed `Tier / owner` line, or whose
+tier is not canonical or whose owner is not `[DEV]` or `[QE]`, cannot be
+attributed to Unit, Integration, or E2E coverage or routed to the story
+that executes it, so it is a finding, not a formatting nit:
 - Any TC missing or misdeclaring a tier or owner is an `important` finding.
 - If one or more TCs lack a valid tier or owner, Actionability is capped
   at 1.
@@ -188,12 +188,13 @@ Check:
 
 ## Verdict
 
-- **Ready** (8-10, and every TC declares a valid tier and owner): Test
-  plan is implementation-ready
+- **Ready** (8-10, and every TC's first Preconditions bullet declares a
+  valid tier and owner): Test plan is implementation-ready
 - **Revise** (5-7): Address gaps, re-score
-- **Revise** also applies when a plan scores 8-10 but fails the
-  every-case-declares-a-valid-tier-and-owner gate (Actionability capped
-  at 1): the total alone cannot make it Ready.
+- **Revise** also applies when a plan scores 8-10, has no zero-scored
+  dimension, and fails the every-case-declares-a-valid-tier-and-owner
+  gate (Actionability capped at 1): the total alone cannot make it
+  Ready.
 - **Rework** (0-4 or any zero): Fundamental issues — zero on any
   dimension is automatic Rework
 

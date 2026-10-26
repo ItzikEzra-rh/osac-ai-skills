@@ -124,7 +124,7 @@ Every case must declare `Tier / owner` as its first Preconditions bullet:
 
 - Requirements covered: X/Y ({Z missing})
 - Test cases: X total (Y complete, Z shallow, W incomplete)
-- Tier coverage: X/Y TCs declare a tier and owner
+- Tier coverage: X/Y TCs declare a valid tier and owner
 - AC coverage: X/Y story ACs mapped
 - Structural issues: X found
 
