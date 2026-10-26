@@ -159,8 +159,8 @@ Every case must declare `Tier / owner` as its first Preconditions bullet:
 
 ### Verdict
 
-{PASS: all requirements covered, no incomplete TCs, no structural issues}
-{NEEDS WORK: X requirements missing, Y TCs shallow — list what to fix}
+{PASS: all requirements covered, no incomplete TCs, every TC has a valid tier and owner, no structural issues}
+{NEEDS WORK: X requirements missing, Y TCs shallow, Z TCs missing or misdeclaring a tier or owner — list what to fix}
 ```
 
 ## Notes
