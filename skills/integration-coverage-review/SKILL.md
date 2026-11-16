@@ -3,7 +3,7 @@ name: integration-coverage-review
 description: Integration-coverage review of a branch's changes before PR submission. Reads the consumer repo's own integration-testing guide and component agent-doc touched-area maps, classifies every touched behavior as unit-only or boundary-crossing, and flags changed boundaries whose qualifying suite, tier, executed command, or real-vs-faked disclosure is missing — mocks and unit doubles never satisfy a documented real boundary. Use standalone before opening a PR, or via create-pr's config-driven pre-flight gate, which invokes it directly. Repos without OSAC integration-testing documentation are out of scope and report NONE.
 allowed-tools: Read, Grep, Bash, Glob
 metadata:
-  version: "0.3.0"
+  version: "0.4.0"
 ---
 
 # Integration Coverage Review
@@ -53,12 +53,19 @@ produces no diff output at all.
 The consumer repo for this reviewer is the OSAC `osac` monorepo. Required
 coverage comes from its own documentation. Locate and read:
 
-- `docs/INTEGRATION-TESTING.md` — the shared tier definitions and the
-  affected component's section (touched-area requirements, test tiers and
-  commands table, coverage notes, and coverage gaps with their follow-up
-  tickets).
+- `docs/INTEGRATION-TESTING.md` — the shared tier definitions, planning
+  and implementation evidence requirements, and component suite guide links.
+- The affected component's suite guide under `docs/testing/` — its test
+  tiers, prerequisites, dependency boundaries, coverage scope and known
+  gaps with their follow-up tickets.
 - The affected component's own `AGENTS.md` — its touched-area map and
   integration-testing section.
+
+This review checks coverage of changed boundaries. It does not request
+updates to the testing guide or suite guides — those guides change only
+when commands, prerequisites, dependency boundaries, coverage scope or
+tracked gaps change, not when routine tests are added within an existing
+suite.
 
 **Repos without OSAC integration-testing documentation are out of scope.**
 If the consumer repo has no `docs/INTEGRATION-TESTING.md` and no component
