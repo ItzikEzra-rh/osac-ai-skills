@@ -80,7 +80,7 @@ RETIRED_SHARED_RULES=(architecture-patterns networking-design-alignment request-
 SHARED_AGENTS=(quick-fix)
 SHARED_HOOKS=(README)
 SHARED_DESIGN_CONTEXT=(enclave-wizard-pipeline networking-decisions osac-dimensions review-patterns)
-SHARED_DESIGN_TEMPLATES=(section-guidance)
+SHARED_DESIGN_TEMPLATES=(section-guidance design design-example)
 SHARED_PRD_TEMPLATES=(section-guidance)
 
 LINK_CLAUDE=false
